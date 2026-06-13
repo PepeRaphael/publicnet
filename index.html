@@ -1,137 +1,34 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pepe — Publications & Recherches</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="main.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publications Professionnelles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-  <!-- NAV -->
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <a href="index.html" class="nav-logo">
-        <span class="logo-initials">RP</span>
-        <span class="logo-name">Raphael Alexandre Pepe</span>
-      </a>
-      <ul class="nav-links">
-        <li><a href="index.html" class="active">Accueil</a></li>
-        <li><a href="publications.html">Publications</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-      <button class="nav-burger" id="burger" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </nav>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-bg">
-      <div class="hero-grid"></div>
-    </div>
-    <div class="hero-content">
-      <div class="hero-eyebrow reveal">Chercheur · Auteur · Expert</div>
-      <h1 class="hero-title reveal delay-1">
-        <span class="serif-italic">Votre Nom</span>
-      </h1>
-      <p class="hero-subtitle reveal delay-2">
-        Domaine de spécialisation, institution ou laboratoire.<br />
-        Travaux publiés, recherches en cours, contributions scientifiques.
-      </p>
-      <div class="hero-cta reveal delay-3">
-        <a href="publications.html" class="btn-primary">Voir les publications</a>
-        <a href="contact.html" class="btn-ghost">Me contacter</a>
-      </div>
-    </div>
-    <div class="hero-scroll-hint">
-      <span>Défiler</span>
-      <div class="scroll-line"></div>
-    </div>
-  </section>
-
-  <!-- ABOUT STRIP -->
-  <section class="about-strip">
-    <div class="container">
-      <div class="about-grid">
-        <div class="about-text reveal">
-          <div class="section-label">À propos</div>
-          <h2>Une approche rigoureuse <em>de la recherche</em></h2>
-          <p>Remplacez ce texte par votre présentation personnelle. Décrivez vos domaines d'expertise, vos thèmes de recherche principaux, vos affiliations institutionnelles.</p>
-          <p>Mentionnez vos distinctions, projets collaboratifs, ou orientations de vos travaux actuels.</p>
-          <a href="contact.html" class="link-arrow">Entrer en contact <span>→</span></a>
+    <nav class="navbar">
+        <div class="nav-content">
+            <h1 class="logo">Portfolio Académique</h1>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Publications</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
         </div>
-        <div class="about-stats reveal delay-1">
-          <div class="stat-card">
-            <div class="stat-number" data-count="12">0</div>
-            <div class="stat-label">Publications</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" data-count="8">0</div>
-            <div class="stat-label">Années de recherche</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" data-count="4">0</div>
-            <div class="stat-label">Collaborations</div>
-          </div>
+    </nav>
+
+    <main class="container">
+        <header class="section-header">
+            <h2>Travaux & Publications</h2>
+            <p>Sélectionnez une publication pour consulter le document intégral.</p>
+        </header>
+
+        <div id="publications-grid" class="grid">
+            <div class="loader">Chargement des données depuis le dépôt...</div>
         </div>
-      </div>
-    </div>
-  </section>
+    </main>
 
-  <!-- RECENT PUBLICATIONS PREVIEW -->
-  <section class="recent-pubs">
-    <div class="container">
-      <div class="section-header reveal">
-        <div class="section-label">Récents travaux</div>
-        <h2>Dernières <em>publications</em></h2>
-      </div>
-      <div class="pub-preview-grid" id="pubPreviewGrid">
-        <!-- Injected by JS -->
-      </div>
-      <div class="section-footer reveal">
-        <a href="publications.html" class="btn-outline">Toutes les publications</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-inner">
-        <div class="footer-brand">
-          <span class="logo-initials">VN</span>
-          <span>Votre Nom</span>
-        </div>
-        <nav class="footer-nav">
-          <a href="index.html">Accueil</a>
-          <a href="publications.html">Publications</a>
-          <a href="contact.html">Contact</a>
-        </nav>
-        <p class="footer-copy">&copy; <span id="year"></span> Votre Nom. Tous droits réservés.</p>
-      </div>
-    </div>
-  </footer>
-
-  <script src="assets/js/main.js"></script>
-  <script src="assets/js/publications-data.js"></script>
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-    // Preview: show last 3 publications
-    window.addEventListener('DOMContentLoaded', () => {
-      if (typeof PUBLICATIONS !== 'undefined') {
-        const grid = document.getElementById('pubPreviewGrid');
-        const recent = [...PUBLICATIONS].reverse().slice(0, 3);
-        recent.forEach(pub => {
-          grid.innerHTML += buildCard(pub);
-        });
-        initCardHovers();
-      }
-    });
-  </script>
+    <script src="js/script.js"></script>
 </body>
 </html>

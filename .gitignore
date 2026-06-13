@@ -1,0 +1,116 @@
+# ==========================================
+# SYSTÈMES D'EXPLOITATION (Fichiers cachés)
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+*~
+
+# ==========================================
+# ÉDITEURS ET IDE (Configurations locales)
+# ==========================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.classpath
+.settings/
+
+# ==========================================
+# PYTHON
+# ==========================================
+# Fichiers compilés
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environnements virtuels
+venv/
+env/
+.venv/
+.env/
+Pipfile.lock
+
+# Outils de test et de couverture
+.pytest_cache/
+.coverage
+htmlcov/
+
+# C extensions
+*.so
+
+# ==========================================
+# C / C++ / ASSEMBLEUR
+# ==========================================
+# Fichiers objets et bibliothèques
+*.o
+*.ko
+*.obj
+*.elf
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# Exécutables
+*.exe
+*.out
+*.app
+
+# Fichiers générés par Make / CMake
+Makefile
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+build/
+bin/
+
+# ==========================================
+# JAVA
+# ==========================================
+*.class
+*.log
+*.ctxt
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ==========================================
+# BLENDER & 3D (Fichiers de sauvegarde auto)
+# ==========================================
+*.blend1
+*.blend2
+*.crash.txt
+
+# ==========================================
+# VARIABLES D'ENVIRONNEMENT ET SECRETS
+# ==========================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# ==========================================
+# LOGS ET BASES DE DONNÉES LOCALES
+# ==========================================
+*.log
+*.sqlite
+*.sqlite3
+*.db
