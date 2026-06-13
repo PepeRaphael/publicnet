@@ -1,34 +1,177 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Publications</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raphael Alexandre Pepe — Portefeuille Académique</title>
+  <meta name="description" content="Portefeuille académique de Raphael Alexandre Pepe — Mathématiques appliquées, Analyse numérique, Informatique.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <h1 class="logo">Academic Portfolio</h1>
-            <ul class="nav-links">
-                <li><a href="index.html" class="active">Publications</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
+
+  <!-- ── NAVBAR ───────────────────────────────────────── -->
+  <nav class="navbar" role="navigation" aria-label="Navigation principale">
+    <a href="#hero" class="logo">R<span>.</span>A<span>.</span> Pepe</a>
+    <ul class="nav-links">
+      <li><a href="#about">À propos</a></li>
+      <li><a href="#publications">Publications</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HERO ─────────────────────────────────────────── -->
+  <section id="hero" aria-label="Introduction">
+    <p class="hero-eyebrow">Portefeuille Académique</p>
+
+    <h1 class="hero-name">
+      <span class="line"><span>Raphael</span></span>
+      <span class="line"><span>Alexandre Pepe</span></span>
+    </h1>
+
+    <p class="hero-field">
+      <em>Mathématiques appliquées</em> &thinsp;·&thinsp;
+      Analyse numérique &thinsp;·&thinsp;
+      Informatique
+    </p>
+
+    <div class="hero-cta">
+      <a href="#publications" class="btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Voir les publications
+      </a>
+      <a href="#contact" class="btn-ghost">Me contacter</a>
+    </div>
+
+    <div class="hero-scroll-hint" aria-hidden="true">
+      <span class="scroll-line"></span>
+      Défiler
+    </div>
+  </section>
+
+  <!-- ── ABOUT ─────────────────────────────────────────── -->
+  <section id="about" aria-label="À propos">
+    <div class="about-left reveal">
+      <span class="section-num">01 / À propos</span>
+      <h2>Chercheur<br>& Développeur</h2>
+    </div>
+
+    <div class="about-right">
+      <p class="about-text reveal">
+        Étudiant à l'<strong>Université de Genève (UNIGE)</strong>, je me consacre à la recherche
+        à l'intersection des mathématiques appliquées et de l'informatique. Mon travail vise à
+        développer des méthodes numériques robustes et des algorithmes efficaces pour résoudre
+        des problèmes complexes du monde réel.
+      </p>
+
+      <div class="info-grid reveal">
+        <div class="info-item">
+          <p class="info-label">Institution</p>
+          <p class="info-value">Université de Genève</p>
         </div>
-    </nav>
-
-    <main class="container">
-        <header class="section-header">
-            <h2>Research & Publications</h2>
-            <p>Select a publication to view the full document.</p>
-        </header>
-
-        <div id="publications-grid" class="grid">
-            <div class="loader">Loading repository data...</div>
+        <div class="info-item">
+          <p class="info-label">Domaine</p>
+          <p class="info-value">Mathématiques & Informatique</p>
         </div>
-    </main>
+        <div class="info-item">
+          <p class="info-label">Email</p>
+          <p class="info-value">
+            <a href="mailto:votre-email@etu.unige.ch">votre-email@etu.unige.ch</a>
+          </p>
+        </div>
+        <div class="info-item">
+          <p class="info-label">GitHub</p>
+          <p class="info-value">
+            <a href="https://github.com/PepeRaphael" target="_blank" rel="noopener">PepeRaphael</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script src="js/script.js"></script>
+  <!-- ── PUBLICATIONS ──────────────────────────────────── -->
+  <section id="publications" aria-label="Publications">
+    <div class="pub-header">
+      <div class="reveal">
+        <span class="section-num">02 / Publications</span>
+        <h2>Recherche &<br>Publications</h2>
+      </div>
+      <div class="pub-header-right reveal">
+        <span class="pub-count" id="pub-count">—</span>
+        documents disponibles
+      </div>
+    </div>
+
+    <div id="publications-grid" role="list" aria-label="Liste des publications">
+      <p class="loader">Chargement des publications</p>
+    </div>
+  </section>
+
+  <!-- ── CONTACT ───────────────────────────────────────── -->
+  <section id="contact" aria-label="Contact">
+    <div class="contact-inner">
+      <div class="contact-left">
+        <span class="section-num reveal">03 / Contact</span>
+        <h2 class="reveal">Travaillons<br>ensemble.</h2>
+        <p class="reveal">
+          Pour toute demande de collaboration académique ou technique,
+          n'hésitez pas à me contacter directement. Je suis ouvert aux
+          échanges scientifiques et aux projets de recherche.
+        </p>
+      </div>
+
+      <div class="contact-links reveal">
+        <a href="mailto:votre-email@etu.unige.ch" class="contact-link">
+          <span class="contact-link-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </span>
+          <span class="contact-link-text">
+            <span class="contact-link-label">Email institutionnel</span>
+            <span class="contact-link-value">votre-email@etu.unige.ch</span>
+          </span>
+        </a>
+
+        <a href="https://github.com/PepeRaphael" target="_blank" rel="noopener noreferrer" class="contact-link">
+          <span class="contact-link-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+            </svg>
+          </span>
+          <span class="contact-link-text">
+            <span class="contact-link-label">GitHub</span>
+            <span class="contact-link-value">github.com/PepeRaphael</span>
+          </span>
+        </a>
+
+        <a href="https://www.unige.ch" target="_blank" rel="noopener noreferrer" class="contact-link">
+          <span class="contact-link-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </span>
+          <span class="contact-link-text">
+            <span class="contact-link-label">Institution</span>
+            <span class="contact-link-value">Université de Genève (UNIGE)</span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ────────────────────────────────────────── -->
+  <footer>
+    <span>&copy; <script>document.write(new Date().getFullYear())</script> <span class="footer-accent">Raphael Alexandre Pepe</span></span>
+    <span>Université de Genève &thinsp;·&thinsp; Portefeuille Académique</span>
+  </footer>
+
+  <script src="js/script.js"></script>
 </body>
 </html>
