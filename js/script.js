@@ -6,6 +6,8 @@ async function fetchPublications() {
     const grid = document.getElementById('publications-grid');
     if (!grid) return;
 
+    grid.innerHTML = '<p style="color: #71717a; font-size: 0.9rem;">Loading repository data...</p>';
+
     const pdfsUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/publications/pdfs`;
     const imgsUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/publications/images`;
 
@@ -25,7 +27,7 @@ async function fetchPublications() {
         const pdfs = pdfFiles.filter(file => file.name.endsWith('.pdf'));
 
         if (pdfs.length === 0) {
-            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No publications found.</p>';
+            grid.innerHTML = '<p style="color: #71717a; font-size: 0.9rem;">No publications found.</p>';
             return;
         }
 
@@ -71,7 +73,7 @@ async function fetchPublications() {
 
             card.innerHTML = `
                 <div class="pub-image-container">
-                    <img src="${pub.imgUrl}" alt="${pub.displayTitle}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100%\\' height=\\'100%\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%23e5e7eb\\'/><text x=\\'50%\\' y=\\'50%\\' fill=\\'%236b7280\\' font-family=\\'Arial\\' font-size=\\'14\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\'>Image not found</text></svg>'">
+                    <img src="${pub.imgUrl}" alt="${pub.displayTitle}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100%\\' height=\\'100%\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%23e4e4e7\\'/></svg>'">
                 </div>
                 <div class="pub-content">
                     <h3>${pub.displayTitle}</h3>
@@ -82,7 +84,7 @@ async function fetchPublications() {
         });
 
     } catch (error) {
-        grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: red;">Error loading data. Please check the repository structure.</p>`;
+        grid.innerHTML = `<p style="color: red; font-size: 0.9rem;">Error loading data. Please check the repository structure.</p>`;
     }
 }
 
