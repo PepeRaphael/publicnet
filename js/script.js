@@ -25,7 +25,7 @@ async function fetchPublications() {
         const pdfs = pdfFiles.filter(file => file.name.endsWith('.pdf'));
 
         if (pdfs.length === 0) {
-            grid.innerHTML = '<div style="color: #555; width: 100%; text-align: center;">No publications found.</div>';
+            grid.innerHTML = '<div style="color: #71717a; width: 100%; text-align: center; grid-column: 1/-1;">No publications found.</div>';
             return;
         }
 
@@ -71,7 +71,7 @@ async function fetchPublications() {
 
             card.innerHTML = `
                 <div class="card-header">
-                    <img src="${pub.imgUrl}" alt="${pub.displayTitle}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100%\\' height=\\'100%\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%23cccccc\\'/></svg>'">
+                    <img src="${pub.imgUrl}" alt="${pub.displayTitle}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100%\\' height=\\'100%\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%23f4f4f5\\'/></svg>'">
                 </div>
                 <div class="card-body">
                     <div class="card-title">${pub.displayTitle}</div>
@@ -82,7 +82,7 @@ async function fetchPublications() {
         });
 
     } catch (error) {
-        grid.innerHTML = `<div style="color: red; width: 100%; text-align: center;">Error loading data. Please check the repository structure.</div>`;
+        grid.innerHTML = `<div style="color: #ef4444; width: 100%; text-align: center; grid-column: 1/-1;">Error loading publications. Check repository configuration.</div>`;
     }
 }
 
