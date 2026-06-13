@@ -6,8 +6,6 @@ async function fetchPublications() {
     const grid = document.getElementById('publications-grid');
     if (!grid) return;
 
-    grid.innerHTML = '<p style="color: #71717a; font-size: 0.9rem;">Loading repository data...</p>';
-
     const pdfsUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/publications/pdfs`;
     const imgsUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/publications/images`;
 
@@ -27,7 +25,7 @@ async function fetchPublications() {
         const pdfs = pdfFiles.filter(file => file.name.endsWith('.pdf'));
 
         if (pdfs.length === 0) {
-            grid.innerHTML = '<p style="color: #71717a; font-size: 0.9rem;">No publications found.</p>';
+            grid.innerHTML = '<div style="color: #555; width: 100%; text-align: center;">No publications found.</div>';
             return;
         }
 
@@ -67,24 +65,24 @@ async function fetchPublications() {
         publicationsData.forEach(pub => {
             const card = document.createElement('a');
             card.href = pub.pdfUrl;
-            card.className = 'pub-card';
+            card.className = 'card';
             card.target = '_blank';
             card.rel = 'noopener noreferrer';
 
             card.innerHTML = `
-                <div class="pub-image-container">
-                    <img src="${pub.imgUrl}" alt="${pub.displayTitle}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100%\\' height=\\'100%\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%23e4e4e7\\'/></svg>'">
+                <div class="card-header">
+                    <img src="${pub.imgUrl}" alt="${pub.displayTitle}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100%\\' height=\\'100%\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%23cccccc\\'/></svg>'">
                 </div>
-                <div class="pub-content">
-                    <h3>${pub.displayTitle}</h3>
-                    <p class="pub-date">Published: ${pub.formattedDate}</p>
+                <div class="card-body">
+                    <div class="card-title">${pub.displayTitle}</div>
+                    <div class="card-sub-title">Published: ${pub.formattedDate}</div>
                 </div>
             `;
             grid.appendChild(card);
         });
 
     } catch (error) {
-        grid.innerHTML = `<p style="color: red; font-size: 0.9rem;">Error loading data. Please check the repository structure.</p>`;
+        grid.innerHTML = `<div style="color: red; width: 100%; text-align: center;">Error loading data. Please check the repository structure.</div>`;
     }
 }
 
