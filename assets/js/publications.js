@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <a href="${pdfPath}" target="_blank" rel="noopener" class="image fit">
                         <img src="${imagePath}" alt="Cover of ${displayTitle}" />
                     </a>
-                    <p>Consultez ou téléchargez le document de recherche complet au format PDF directement dans votre navigateur.</p>
+                    <p>View, read, or download the complete research publication in PDF format directly in your browser.</p>
                     <ul class="actions special">
                         <li><a href="${pdfPath}" target="_blank" rel="noopener" class="button">Read Publication</a></li>
                     </ul>
