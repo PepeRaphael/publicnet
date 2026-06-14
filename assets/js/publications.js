@@ -90,3 +90,4 @@ document.addEventListener('DOMContentLoaded', function () {
             if (emptyState) emptyState.style.display = 'block';
         });
 });
+
