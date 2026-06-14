@@ -1,11 +1,7 @@
 <!DOCTYPE HTML>
-<!--
-	Adapted from Massively by HTML5 UP (html5up.net | @ajlkn)
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
 <html>
 	<head>
-		<title>My Publications</title>
+		<title>Raphael Alexandre Pepe - Publications</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -14,10 +10,8 @@
 	</head>
 	<body class="is-preload">
 
-		<!-- Wrapper -->
 		<div id="wrapper" class="fade-in">
 
-			<!-- Intro -->
 			<div id="intro">
 				<h1>Professional<br />Publications</h1>
 				<p>A curated collection of research, insights, and academic work.<br />
@@ -27,16 +21,14 @@
 				</ul>
 			</div>
 
-			<!-- Header -->
 			<header id="header">
 				<a href="index.html" class="logo">Publications</a>
 			</header>
 
-			<!-- Nav -->
 			<nav id="nav">
 				<ul class="links">
-					<li class="active"><a href="index.html">Publications</a></li>
-					<li><a href="contact.html">Contact</a></li>
+					<li class="active"><a href="#main">Publications</a></li>
+					<li><a href="#about" class="scrolly">About & Contact</a></li>
 				</ul>
 				<ul class="icons">
 					<li><a href="#" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
@@ -45,10 +37,8 @@
 				</ul>
 			</nav>
 
-			<!-- Main -->
 			<div id="main">
 
-				<!-- Publications Header -->
 				<section class="pub-header">
 					<header class="major">
 						<h2>Latest Publications</h2>
@@ -56,66 +46,71 @@
 					</header>
 				</section>
 
-				<!-- Dynamic Publications Grid -->
 				<section class="posts" id="publications-grid">
-					<!-- Publications are loaded dynamically from publications.json -->
 					<div class="pub-loading">
 						<span class="icon solid fa-spinner fa-spin"></span>
 						<p>Loading publications…</p>
 					</div>
 				</section>
 
-				<!-- Empty State (shown if no publications) -->
 				<section class="pub-empty" id="pub-empty" style="display:none;">
 					<div class="pub-empty-inner">
 						<span class="icon solid fa-file-alt pub-empty-icon"></span>
 						<h3>No publications yet</h3>
-						<p>Add your first publication by following the <a href="#how-to">guide below</a>.</p>
 					</div>
 				</section>
 
-				<!-- How to Add Publications Guide -->
-				<section class="post" id="how-to">
+				<section class="post" id="about">
 					<header class="major">
-						<h2>How to Add a Publication</h2>
+						<h2>About Me</h2>
 					</header>
-					<div class="how-to-steps">
-						<div class="step">
-							<span class="step-num">01</span>
-							<div class="step-body">
-								<h4>Create a folder</h4>
-								<p>In <code>publications/</code>, create a folder named exactly after your PDF (without the <code>.pdf</code> extension). Example: <code>publications/My-Research-2024/</code></p>
+
+					<div class="profile-card">
+						<div class="profile-avatar">
+							<img src="images/avatar.jpg" alt="Profile photo" id="profile-img"
+							     onerror="this.style.display='none'; document.getElementById('profile-initials').style.display='flex';" />
+							<div id="profile-initials" class="profile-initials" style="display:none;">RP</div>
+						</div>
+						<div class="profile-info">
+							<h2 class="profile-name">Raphael Alexandre Pepe</h2>
+							<p class="profile-title">Student & Researcher · University of Geneva (UNIGE)</p>
+							<p class="profile-bio">
+								Passionate about advanced mathematics, numerical analysis, and software development. My work bridges complex theoretical frameworks with practical programming applications, exploring domains from information theory to Earth Science data visualization.
+							</p>
+							<div class="profile-tags">
+								<span class="tag">Numerical Analysis</span>
+								<span class="tag">Applied Mathematics</span>
+								<span class="tag">Software Development</span>
 							</div>
 						</div>
-						<div class="step">
-							<span class="step-num">02</span>
-							<div class="step-body">
-								<h4>Add your files</h4>
-								<p>Place two files inside that folder:<br>
-								&bull; <code>My-Research-2024.pdf</code> — the publication itself<br>
-								&bull; <code>cover.jpg</code> — the cover image (portrait ratio recommended)</p>
-							</div>
+					</div>
+
+					<div class="contact-grid">
+						<div class="contact-card">
+							<span class="icon solid fa-envelope contact-icon"></span>
+							<h4>Email</h4>
+							<p><a href="mailto:your@email.com">your@email.com</a></p>
 						</div>
-						<div class="step">
-							<span class="step-num">03</span>
-							<div class="step-body">
-								<h4>Register the publication</h4>
-								<p>Open <code>publications.json</code> at the root and add a new entry. The title will be taken from the filename automatically.</p>
-							</div>
+						<div class="contact-card">
+							<span class="icon brands fa-linkedin contact-icon"></span>
+							<h4>LinkedIn</h4>
+							<p><a href="https://linkedin.com/in/yourprofile" target="_blank">linkedin.com/in/yourprofile</a></p>
 						</div>
-						<div class="step">
-							<span class="step-num">04</span>
-							<div class="step-body">
-								<h4>Push to GitHub</h4>
-								<p>Commit and push. GitHub Pages will rebuild automatically — your new publication will appear on the site within minutes.</p>
-							</div>
+						<div class="contact-card">
+							<span class="icon brands fa-github contact-icon"></span>
+							<h4>GitHub</h4>
+							<p><a href="https://github.com/yourusername" target="_blank">github.com/yourusername</a></p>
+						</div>
+						<div class="contact-card">
+							<span class="icon solid fa-university contact-icon"></span>
+							<h4>Institution</h4>
+							<p>University of Geneva (UNIGE)<br /><span style="opacity:.7">Earth Sciences / Mathematics</span></p>
 						</div>
 					</div>
 				</section>
 
 			</div>
 
-			<!-- PDF Lightbox Overlay -->
 			<div id="pdf-overlay" class="pdf-overlay" style="display:none;">
 				<div class="pdf-overlay-header">
 					<span id="pdf-overlay-title" class="pdf-title"></span>
@@ -129,7 +124,6 @@
 				</div>
 			</div>
 
-			<!-- Footer -->
 			<footer id="footer">
 				<section class="split contact">
 					<section>
@@ -141,23 +135,21 @@
 						<ul class="icons alt">
 							<li><a href="#" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
 							<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
-							<li><a href="contact.html" class="icon solid alt fa-envelope"><span class="label">Contact</span></a></li>
+							<li><a href="#about" class="icon solid alt fa-user scrolly"><span class="label">About</span></a></li>
 						</ul>
 					</section>
 				</section>
 			</footer>
 
-			<!-- Copyright -->
 			<div id="copyright">
 				<ul>
-					<li>&copy; Your Name</li>
+					<li>&copy; Raphael Alexandre Pepe</li>
 					<li>Design adapted from <a href="https://html5up.net">HTML5 UP</a></li>
 				</ul>
 			</div>
 
 		</div>
 
-		<!-- Scripts -->
 		<script src="assets/js/jquery.min.js"></script>
 		<script src="assets/js/jquery.scrollex.min.js"></script>
 		<script src="assets/js/jquery.scrolly.min.js"></script>
