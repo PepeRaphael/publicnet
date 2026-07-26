@@ -173,6 +173,9 @@ import yaml
 from pyscript import window, document
 from pyodide.ffi import create_proxy
 
+# Masque l'avertissement de threadpoolctl lié à l'absence de libc dans WebAssembly
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="threadpoolctl")
+
 def run_llmnet_engine(event):
     raw_json = window.easyEdaRawData
     if not raw_json:
