@@ -205,205 +205,180 @@ import yaml
 from pyscript import window, document
 import js
 
+# Suppression des alertes WebAssembly
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="threadpoolctl")
 
-def round_coord(val):
-    """Rounds coordinates to handle floating point inaccuracies in EasyEDA exports."""
-    return round(float(val), 1)
+def snap(val):
+    """
+    Fonction de capture algébrique.
+    Force les coordonnées sur une grille mathématique stricte de 5 unités.
+    """
+    return int(round(float(val) / 5.0) * 5.0)
 
-def parse_geometric_topology(raw_data):
-    """
-    Highly robust geometric parser. Extracts components and mathematically
-    resolves Nets by finding connected components of wire/pin coordinates.
-    """
-    js.updateStatus("Parsing geometric coordinates...")
+def parse_true_topology(raw_data):
+    """Extraction spatiale résolvant l'illusion des labels et des flottants."""
     data = json.loads(raw_data)
-    try:
-        shape_data = data.get("schematics", [{}])[0].get("dataStr", {}).get("shape", [])
-    except IndexError:
-        raise ValueError("Invalid EasyEDA format structure.")
-
+    shape_data = data.get("schematics", [{}])[0].get("dataStr", {}).get("shape", [])
+    
     spatial_graph = nx.Graph()
     components = {}
     net_labels = {}
-
+    
     for item in shape_data:
-        if not isinstance(item, str):
-            continue
-            
-        # Extract Wires
+        if not isinstance(item, str): continue
+        
+        # 1. Traitement des fils physiques
         if item.startswith('W~'):
             parts = item.split('~')
-            if len(parts) > 1:
-                coords = parts[1].split(' ')
-                for i in range(0, len(coords)-2, 2):
-                    try:
-                        p1 = (round_coord(coords[i]), round_coord(coords[i+1]))
-                        p2 = (round_coord(coords[i+2]), round_coord(coords[i+3]))
-                        spatial_graph.add_edge(p1, p2)
-                    except ValueError:
-                        continue
-
-        # Extract Explicit Net Labels
+            coords = parts[1].split(' ')
+            for i in range(0, len(coords)-2, 2):
+                p1 = (snap(coords[i]), snap(coords[i+1]))
+                p2 = (snap(coords[i+2]), snap(coords[i+3]))
+                spatial_graph.add_edge(p1, p2)
+        
+        # 2. Traitement des Nœuds Logiques (NetLabels)
         elif item.startswith('N~'):
             parts = item.split('~')
             if len(parts) >= 6:
-                try:
-                    px, py = round_coord(parts[1]), round_coord(parts[2])
-                    net_name = parts[5]
-                    net_labels[(px, py)] = net_name
-                    spatial_graph.add_node((px, py))
-                except ValueError:
-                    continue
-
-        # Extract Components and Pins
+                px, py = snap(parts[1]), snap(parts[2])
+                net_name = parts[5] # Le nom du réseau (GND, 5v, etc.)
+                if net_name not in net_labels:
+                    net_labels[net_name] = []
+                net_labels[net_name].append((px, py))
+                spatial_graph.add_node((px, py))
+        
+        # 3. Traitement des Composants et de leurs Broches
         elif item.startswith('LIB~'):
             id_match = re.search(r'comment~([A-Z0-9_]+)~1~start', item)
             type_match = re.search(r'package`([^`]+)`', item)
-            name_alias = re.search(r'comment~([^~]+)~1~start.*comment~([A-Z0-9_]+)~1~start', item)
+            alias_match = re.search(r'comment~([^~]+)~1~start.*comment~([A-Z0-9_]+)~1~start', item)
             
             if id_match:
                 comp_id = id_match.group(1)
-                comp_type = type_match.group(1) if type_match else "Unknown"
-                if name_alias and name_alias.group(1) != comp_id:
-                    comp_type = f"{comp_type} ({name_alias.group(1)})"
-
+                comp_type = type_match.group(1) if type_match else "UNK"
+                if alias_match and alias_match.group(1) != comp_id:
+                    comp_type = f"{comp_type} ({alias_match.group(1)})"
+                    
                 components[comp_id] = {'type': comp_type, 'pins': {}}
-
-                # Extract pins encoded in the #@$P sequence
-                pin_segments = item.split('#@$P~')[1:]
-                for segment in pin_segments:
-                    coord_match = re.search(r'\^\^([-\d.]+)~([-\d.]+)\^\^', segment)
+                
+                # Découpage des blocs de broches
+                for segment in item.split('#@$P~')[1:]:
                     parts = segment.split('~')
-                    if len(parts) >= 4 and coord_match:
-                        pin_num = parts[3]
-                        try:
-                            px = round_coord(coord_match.group(1))
-                            py = round_coord(coord_match.group(2))
+                    if len(parts) > 3:
+                        pin_num = parts[2] # Index corrigé pour le numéro de broche
+                        coord_match = re.search(r'\^\^([-\d.]+)~([-\d.]+)\^\^', segment)
+                        if coord_match:
+                            px = snap(coord_match.group(1))
+                            py = snap(coord_match.group(2))
                             components[comp_id]['pins'][pin_num] = (px, py)
                             spatial_graph.add_node((px, py))
-                        except ValueError:
-                            continue
-
-    js.updateStatus("Resolving Kirchhoff laws via union-find algorithms...")
-    # Graph spatial resolution
+    
+    # 4. Fusion Algorithmique
+    # Création des arêtes virtuelles entre les labels de même nom
+    for name, coords in net_labels.items():
+        for i in range(len(coords)-1):
+            spatial_graph.add_edge(coords[i], coords[i+1])
+            
+    # Recherche des composantes connexes (Équipotentielles)
     nets = {}
-    for idx, connected_nodes in enumerate(nx.connected_components(spatial_graph)):
-        net_name = f"NET_{idx}"
+    for idx, cc in enumerate(nx.connected_components(spatial_graph)):
+        net_name = f"NET_AUTO_{idx}"
         
-        # Override name if a net label is present in this connected component
-        for node in connected_nodes:
-            for label_coord, label_name in net_labels.items():
-                if abs(node[0] - label_coord[0]) <= 2.0 and abs(node[1] - label_coord[1]) <= 2.0:
-                    net_name = label_name
+        # Écrasement du nom si un label logique fait partie de ce sous-graphe
+        for node in cc:
+            for name, coords in net_labels.items():
+                if node in coords:
+                    net_name = name
                     break
-
+        
+        # Collecte des broches incluses dans cette équipotentielle
         connected_pins = []
-        for comp_id, comp_data in components.items():
-            for pin_num, pin_coord in comp_data['pins'].items():
-                if pin_coord in connected_nodes:
-                    connected_pins.append(f"{comp_id}.{pin_num}")
-
-        # Only register nets connecting 2 or more pins
+        for cid, cdata in components.items():
+            for pnum, pcoord in cdata['pins'].items():
+                if pcoord in cc:
+                    connected_pins.append(f"{cid}.{pnum}")
+        
         if len(connected_pins) > 1:
             nets[net_name] = connected_pins
-
+            
     return components, nets
 
 def estimate_optimal_k(adj_matrix):
-    js.updateStatus("Calculating Normalized Laplacian Eigenvalues...")
+    """Calcul spectral pour trouver le saut optimal de l'Eigengap."""
     n = adj_matrix.shape[0]
     if n < 3: return 1
-    
     d = np.sum(adj_matrix, axis=1)
     d_inv_sqrt = np.power(d, -0.5, where=d!=0)
     D_inv_sqrt = np.diag(d_inv_sqrt)
     
     L_sym = np.eye(n) - np.dot(D_inv_sqrt, np.dot(adj_matrix, D_inv_sqrt))
     eigenvalues = np.linalg.eigvalsh(L_sym)
-    
     gaps = np.diff(eigenvalues)
-    max_k = max(2, min(n // 2, 8))
+    
+    max_k = max(2, min(n // 3, 10))
     optimal_k = np.argmax(gaps[:max_k]) + 1
     return max(2, optimal_k)
 
-def generate_llm_payload(raw_json):
-    components, nets = parse_geometric_topology(raw_json)
-    
+def generate_rich_llm_netlist(raw_json):
+    # Parsing géométrique strict
+    components, nets = parse_true_topology(raw_json)
     comp_keys = list(components.keys())
     n_comps = len(comp_keys)
     
-    if n_comps == 0:
-        raise ValueError("No valid components extracted. Check JSON format.")
-
-    js.updateStatus("Building bipartite projection matrix...")
+    # Matrice de projection
     adj_matrix = np.zeros((n_comps, n_comps))
-    
     for net_name, pins in nets.items():
-        net_degree = len(pins)
-        if net_degree > 1:
-            # Power nets (GND, VCC) get penalized logarithmically to isolate logic
-            weight = 1.0 / np.log(net_degree + 1)
-            comp_indices = []
-            for pin in pins:
-                cid = pin.split('.')[0]
-                if cid in comp_keys and cid not in comp_indices:
-                    comp_indices.append(cid)
-                    
-            for i in range(len(comp_indices)):
-                for j in range(i+1, len(comp_indices)):
-                    idx_i = comp_keys.index(comp_indices[i])
-                    idx_j = comp_keys.index(comp_indices[j])
-                    adj_matrix[idx_i, idx_j] += weight
-                    adj_matrix[idx_j, idx_i] += weight
+        deg = len(pins)
+        if deg > 1:
+            # Pénalisation inverse pour isoler les réseaux d'alimentation (VCC/GND)
+            weight = 1.0 / np.log(deg + 1) 
+            cids = list(set([p.split('.')[0] for p in pins if p.split('.')[0] in comp_keys]))
+            
+            for i in range(len(cids)):
+                for j in range(i+1, len(cids)):
+                    idx1 = comp_keys.index(cids[i])
+                    idx2 = comp_keys.index(cids[j])
+                    adj_matrix[idx1, idx2] += weight
+                    adj_matrix[idx2, idx1] += weight
 
+    # Clustering Spectral
     k = estimate_optimal_k(adj_matrix)
-    js.updateStatus(f"Clustering matrix into {k} functional sub-systems...")
-    
     sc = SpectralClustering(n_clusters=k, affinity='precomputed', assign_labels='kmeans')
     labels = sc.fit_predict(adj_matrix)
-    
-    functional_blocks = {f"BLOCK_{i}": [] for i in range(k)}
-    for comp_id, label in zip(comp_keys, labels):
-        comp_info = {"id": comp_id, "type": components[comp_id]['type']}
-        functional_blocks[f"BLOCK_{label}"].append(comp_info)
 
-    # Reconstruct data explicitly for LLM ingestion
+    topology = {f"BLOCK_{i}": [] for i in range(k)}
+    for cid, label in zip(comp_keys, labels):
+        topology[f"BLOCK_{label}"].append({
+            "id": cid, 
+            "type": components[cid]['type']
+        })
+
     payload = {
-        "_metadata": {
-            "generator": "LLMNet Semantic Engine v2.0",
-            "mathematical_model": "Spectral clustering on degree-penalized bipartite graph projection."
+        "system_instruction": "Agis en tant qu'ingénieur expert. Diagnostique cette architecture dont la topologie a été résolue par analyse spectrale.",
+        "metrics": {
+            "components_detected": n_comps,
+            "nets_resolved": len(nets),
+            "functional_blocks_found": int(k)
         },
-        "structure_explanation": (
-            "This file contains a semantic breakdown of an electronic schematic. "
-            "Instead of a raw netlist, components have been grouped into functional blocks "
-            "based on the eigenvectors of the circuit's normalized Laplacian matrix. "
-            "Global nets (GND, VCC) were mathematically penalized to reveal the true logic pathways."
-        ),
-        "circuit_metrics": {
-            "total_components": n_comps,
-            "total_nets": len(nets),
-            "calculated_optimal_blocks": int(k)
-        },
-        "functional_blocks": functional_blocks,
+        "topology": topology,
         "connectivity_matrix": nets
     }
-
     return yaml.dump(payload, allow_unicode=True, default_flow_style=False, sort_keys=False)
 
-def trigger_engine(event):
-    raw_json = window.easyEdaRawData
+def run_engine(event):
     try:
-        yaml_output = generate_llm_payload(raw_json)
+        js.updateStatus("Extraction rigoureuse de la géométrie en cours...")
+        raw_json = window.easyEdaRawData
+        yaml_output = generate_rich_llm_netlist(raw_json)
         js.triggerDownload(yaml_output)
     except Exception as e:
-        js.updateStatus(f"Critical Mathematical Failure: {str(e)}")
+        js.updateStatus(f"Erreur algorithmique : {str(e)}")
         document.getElementById("loader").style.display = "none"
 
 from pyodide.ffi import create_proxy
-proxy = create_proxy(trigger_engine)
+proxy = create_proxy(run_engine)
 document.addEventListener("trigger_python_engine", proxy)
 </py-script>
-
+    
 </body>
 </html>
