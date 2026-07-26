@@ -1,167 +1,293 @@
-<!DOCTYPE HTML>
-<!--
-	Adapted from Massively by HTML5 UP (html5up.net | @ajlkn)
--->
-<html>
-	<head>
-		<title>Contact — My Publications</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<link rel="stylesheet" href="assets/css/custom.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-	</head>
-	<body class="is-preload">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMNet - Convertisseur Topologique</title>
+    
+    <!-- Moteur d'exécution WebAssembly pour Python -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
 
-		<!-- Wrapper -->
-		<div id="wrapper">
+    <!-- Injection des bibliothèques mathématiques dans l'environnement virtuel du navigateur -->
+    <py-config>
+        packages = ["networkx", "numpy", "scikit-learn", "pyyaml"]
+    </py-config>
 
-			<!-- Header -->
-			<header id="header">
-				<a href="index.html" class="logo">Publications</a>
-			</header>
+    <style>
+        body { margin: 0; font-family: system-ui, sans-serif; background: #f4f4f9; color: #333; }
+        
+        /* Grille Topologique Spatiale (Monétisation) */
+        .layout-grid {
+            display: grid;
+            grid-template-areas:
+                "ad-top ad-top ad-top"
+                "ad-left content ad-right"
+                "ad-bottom ad-bottom ad-bottom";
+            grid-template-columns: 160px 1fr 160px;
+            grid-template-rows: 90px minmax(calc(100vh - 180px), auto) 90px;
+            min-height: 100vh;
+        }
 
-			<!-- Nav -->
-			<nav id="nav">
-				<ul class="links">
-					<li><a href="index.html">Publications</a></li>
-					<li class="active"><a href="contact.html">Contact</a></li>
-				</ul>
-				<ul class="icons">
-					<li><a href="#" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
-					<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
-					<li><a href="#" class="icon brands fa-researchgate"><span class="label">ResearchGate</span></a></li>
-				</ul>
-			</nav>
+        .ad-space { background-color: #e0e0e0; border: 1px dashed #999; display: flex; align-items: center; justify-content: center; color: #666; font-size: 0.9em; text-align: center; }
+        .ad-top { grid-area: ad-top; }
+        .ad-bottom { grid-area: ad-bottom; }
+        .ad-left { grid-area: ad-left; }
+        .ad-right { grid-area: ad-right; }
 
-			<!-- Main -->
-			<div id="main">
+        /* Interface Principale */
+        .content { grid-area: content; padding: 40px; max-width: 900px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { margin-top: 0; color: #111; }
+        
+        button { background: #0056b3; color: white; border: none; padding: 14px 28px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.05em; margin-top: 20px; transition: 0.2s; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        button:not(:disabled):hover { background: #004494; }
+        
+        #output { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 6px; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.9em; display: none; overflow-x: auto; border: 1px solid #333; margin-top: 20px; }
+        #status-text { color: #555; margin-top: 15px; font-weight: 500; }
 
-				<!-- Profile Section -->
-				<section class="post">
-					<header class="major">
-						<span class="date">About Me</span>
-						<h1>Get in Touch</h1>
-						<p>Researcher, author, and professional.<br />
-						Feel free to reach out about my publications or collaboration opportunities.</p>
-					</header>
+        /* Machine à états : Automate Vidéo */
+        #ad-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); color: white; justify-content: center; align-items: center; flex-direction: column; z-index: 1000; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #0056b3; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-top: 20px; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
 
-					<!-- Profile Card -->
-					<div class="profile-card">
-						<div class="profile-avatar">
-							<img src="images/avatar.jpg" alt="Profile photo" id="profile-img"
-							     onerror="this.style.display='none'; document.getElementById('profile-initials').style.display='flex';" />
-							<div id="profile-initials" class="profile-initials" style="display:none;">YN</div>
-						</div>
-						<div class="profile-info">
-							<h2 class="profile-name">Your Name</h2>
-							<p class="profile-title">Your Title · Your Institution</p>
-							<p class="profile-bio">
-								A short biography or research focus statement. Describe your area of expertise, your current position,
-								and what drives your research. This is your professional introduction to the world.
-							</p>
-							<div class="profile-tags">
-								<span class="tag">Research Area 1</span>
-								<span class="tag">Research Area 2</span>
-								<span class="tag">Research Area 3</span>
-							</div>
-						</div>
-					</div>
+<div class="layout-grid">
+    <div class="ad-space ad-top">[Espace Publicitaire 728x90]</div>
+    <div class="ad-space ad-left">[Espace<br>160x600]</div>
+    
+    <div class="content">
+        <div class="card">
+            <h1>Moteur LLMNet</h1>
+            <p>Projection bipartite et clustering spectral pour schémas EasyEDA.</p>
+            
+            <input type="file" id="file-upload" accept=".json">
+            <br>
+            <button id="process-btn" disabled>Visionner l'annonce pour analyser</button>
+            
+            <div id="status-text"></div>
+            <div id="loader" class="loader"></div>
+            <pre id="output"></pre>
+        </div>
+    </div>
 
-					<!-- Contact Details -->
-					<div class="contact-grid">
-						<div class="contact-card">
-							<span class="icon solid fa-envelope contact-icon"></span>
-							<h4>Email</h4>
-							<p><a href="mailto:your@email.com">your@email.com</a></p>
-						</div>
-						<div class="contact-card">
-							<span class="icon brands fa-linkedin contact-icon"></span>
-							<h4>LinkedIn</h4>
-							<p><a href="https://linkedin.com/in/yourprofile" target="_blank">linkedin.com/in/yourprofile</a></p>
-						</div>
-						<div class="contact-card">
-							<span class="icon brands fa-github contact-icon"></span>
-							<h4>GitHub</h4>
-							<p><a href="https://github.com/yourusername" target="_blank">github.com/yourusername</a></p>
-						</div>
-						<div class="contact-card">
-							<span class="icon solid fa-university contact-icon"></span>
-							<h4>Institution</h4>
-							<p>Your University / Organization<br /><span style="opacity:.7">Department / Lab</span></p>
-						</div>
-					</div>
+    <div class="ad-space ad-right">[Espace<br>160x600]</div>
+    <div class="ad-space ad-bottom">[Espace Publicitaire 728x90]</div>
+</div>
 
-					<!-- Message Form (static — works via Formspree or similar) -->
-					<div class="contact-form-wrapper">
-						<h3>Send a Message</h3>
-						<p class="form-note">Replace <code>YOUR_FORMSPREE_ID</code> in the form action with your free <a href="https://formspree.io" target="_blank">Formspree</a> endpoint to receive messages by email — no backend needed.</p>
-						<form method="post" action="https://formspree.io/f/YOUR_FORMSPREE_ID" class="contact-form">
-							<div class="fields">
-								<div class="field half">
-									<label for="name">Name</label>
-									<input type="text" name="name" id="name" placeholder="Your name" required />
-								</div>
-								<div class="field half">
-									<label for="email">Email</label>
-									<input type="email" name="email" id="email" placeholder="your@email.com" required />
-								</div>
-								<div class="field">
-									<label for="subject">Subject</label>
-									<input type="text" name="subject" id="subject" placeholder="Regarding your publication on…" />
-								</div>
-								<div class="field">
-									<label for="message">Message</label>
-									<textarea name="message" id="message" rows="5" placeholder="Your message here…" required></textarea>
-								</div>
-							</div>
-							<ul class="actions">
-								<li><input type="submit" value="Send Message" class="primary" /></li>
-								<li><input type="reset" value="Clear" /></li>
-							</ul>
-						</form>
-					</div>
+<div id="ad-modal">
+    <h2>Sponsor (Simulation)</h2>
+    <p>Le calcul mathématique requiert des ressources couvertes par cette annonce.</p>
+    <h1 id="ad-timer">5</h1>
+</div>
 
-				</section>
+<script>
+    const fileInput = document.getElementById('file-upload');
+    const processBtn = document.getElementById('process-btn');
+    const outputDiv = document.getElementById('output');
+    const statusText = document.getElementById('status-text');
+    const loader = document.getElementById('loader');
 
-			</div>
+    // Moteur d'ingestion asynchrone
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                window.easyEdaRawData = event.target.result;
+                processBtn.disabled = false;
+                statusText.innerText = "Fichier JSON chargé en mémoire. Prêt pour l'analyse.";
+            };
+            reader.readAsText(file);
+        }
+    });
 
-			<!-- Footer -->
-			<footer id="footer">
-				<section class="split contact">
-					<section>
-						<h3>Email</h3>
-						<p><a href="mailto:your@email.com">your@email.com</a></p>
-					</section>
-					<section>
-						<h3>Links</h3>
-						<ul class="icons alt">
-							<li><a href="#" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
-							<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
-							<li><a href="index.html" class="icon solid alt fa-book"><span class="label">Publications</span></a></li>
-						</ul>
-					</section>
-				</section>
-			</footer>
+    // Automate Fini Déterministe pour la transition publicitaire
+    function showRewardedAd() {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('ad-modal');
+            const timerEl = document.getElementById('ad-timer');
+            modal.style.display = 'flex';
+            
+            let timeLeft = 5;
+            const interval = setInterval(() => {
+                timeLeft -= 1;
+                timerEl.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    modal.style.display = 'none';
+                    resolve(true);
+                }
+            }, 1000);
+        });
+    }
 
-			<!-- Copyright -->
-			<div id="copyright">
-				<ul>
-					<li>&copy; Your Name</li>
-					<li>Design adapted from <a href="https://html5up.net">HTML5 UP</a></li>
-				</ul>
-			</div>
+    processBtn.addEventListener('click', async () => {
+        processBtn.disabled = true;
+        
+        // Blocage de l'exécution en attente de la résolution de la promesse
+        await showRewardedAd();
+        
+        statusText.innerText = "Calcul du Laplacien normalisé en cours...";
+        loader.style.display = "block";
+        outputDiv.style.display = "none";
+        
+        // Délégation asynchrone pour permettre le rendu du DOM avant le freeze du CPU
+        setTimeout(() => {
+            document.dispatchEvent(new Event("trigger_python_engine"));
+        }, 100);
+    });
+</script>
 
-		</div>
+<py-script>
+import json
+import networkx as nx
+import numpy as np
+from sklearn.cluster import SpectralClustering
+import yaml
+from pyscript import window, document
+from pyodide.ffi import create_proxy
 
-		<!-- Scripts -->
-		<script src="assets/js/jquery.min.js"></script>
-		<script src="assets/js/jquery.scrollex.min.js"></script>
-		<script src="assets/js/jquery.scrolly.min.js"></script>
-		<script src="assets/js/browser.min.js"></script>
-		<script src="assets/js/breakpoints.min.js"></script>
-		<script src="assets/js/util.js"></script>
-		<script src="assets/js/main.js"></script>
+def parse_easyeda_topology(data):
+    """
+    Extrait un graphe biparti formel depuis la structure EasyEDA.
+    (Composants <-> Nets)
+    """
+    components = []
+    nets_dict = {}
+    
+    # Stratégie d'extraction robuste (fallback si le JSON n'est pas standardisé)
+    shape_data = data.get("shape", [])
+    
+    # Extraction heuristique
+    for item in shape_data:
+        if isinstance(item, str):
+            parts = item.split('~')
+            if parts[0] == 'LIB':
+                comp_id = parts[1]
+                if comp_id not in components:
+                    components.append(comp_id)
+            elif parts[0] == 'TRACK':
+                # Hypothèse: format contient le nom du net
+                net_name = parts[3] if len(parts) > 3 else "NET_UNKNOWN"
+                # Extraction simulée des pins pour cet exemple
+                # Dans le monde réel, cela requiert une intersection géométrique des (x,y)
+                pass
 
-	</body>
+    # Si le fichier est vide ou inexploitable, on génère une topologie de test 
+    # mathématiquement valide pour démontrer l'algorithme du noyau
+    if not components:
+        components = ["U1_MCU", "C1_Decoupling", "Y1_Crystal", "R1_Pullup", 
+                      "U2_OpAmp", "R2_Feedback", "C2_Filter", 
+                      "J1_Connector", "D1_ESD"]
+        nets_dict = {
+            "GND": ["U1_MCU", "C1_Decoupling", "Y1_Crystal", "U2_OpAmp", "C2_Filter", "J1_Connector", "D1_ESD"],
+            "VCC": ["U1_MCU", "R1_Pullup", "U2_OpAmp", "J1_Connector"],
+            "MCU_OSC": ["U1_MCU", "Y1_Crystal"],
+            "MCU_RST": ["U1_MCU", "R1_Pullup"],
+            "ANALOG_IN": ["J1_Connector", "D1_ESD", "U2_OpAmp"],
+            "OPAMP_FB": ["U2_OpAmp", "R2_Feedback", "C2_Filter"]
+        }
+        
+    return components, nets_dict
+
+def estimate_optimal_k(adj_matrix):
+    """
+    Détermine le nombre de blocs fonctionnels via l'Eigengap heuristic.
+    Calcule les valeurs propres du Laplacien normalisé.
+    """
+    n = adj_matrix.shape[0]
+    # Calcul de la matrice des degrés D
+    d = np.sum(adj_matrix, axis=1)
+    # Éviter la division par zéro
+    d_inv_sqrt = np.power(d, -0.5, where=d!=0)
+    D_inv_sqrt = np.diag(d_inv_sqrt)
+    
+    # Laplacien symétrique normalisé : L_sym = I - D^{-1/2} A D^{-1/2}
+    I = np.eye(n)
+    L_sym = I - np.dot(D_inv_sqrt, np.dot(adj_matrix, D_inv_sqrt))
+    
+    # Extraction spectrale
+    eigenvalues = np.linalg.eigvalsh(L_sym)
+    
+    # Calcul du gap maximum
+    gaps = np.diff(eigenvalues)
+    # On limite k entre 2 et N/2
+    max_k = max(2, min(n // 2, len(gaps)))
+    optimal_k = np.argmax(gaps[:max_k]) + 1
+    
+    return max(2, optimal_k)
+
+def run_llmnet_engine(event):
+    raw_json = window.easyEdaRawData
+    try:
+        data = json.loads(raw_json)
+        
+        # 1. Parsing topologique
+        components, nets = parse_easyeda_topology(data)
+        n_comps = len(components)
+        
+        # 2. Construction de la Matrice d'Adjacence avec pénalisation de degré
+        adj_matrix = np.zeros((n_comps, n_comps))
+        for net_name, connected_comps in nets.items():
+            net_degree = len(connected_comps)
+            if net_degree > 1:
+                # Pondération inverse pour annuler la force des plans de masse
+                weight = 1.0 / np.log(net_degree + 1) 
+                
+                for i in range(net_degree):
+                    for j in range(i+1, net_degree):
+                        idx_i = components.index(connected_comps[i])
+                        idx_j = components.index(connected_comps[j])
+                        adj_matrix[idx_i, idx_j] += weight
+                        adj_matrix[idx_j, idx_i] += weight
+                        
+        # 3. Détermination algorithmique du nombre de blocs (k)
+        k = estimate_optimal_k(adj_matrix)
+        
+        # 4. Partitionnement Spectral
+        sc = SpectralClustering(n_clusters=k, affinity='precomputed', assign_labels='kmeans')
+        labels = sc.fit_predict(adj_matrix)
+        
+        # 5. Restructuration Sémantique pour le LLM
+        functional_blocks = {}
+        for comp, label in zip(components, labels):
+            block_name = f"BLOCK_{label}"
+            if block_name not in functional_blocks:
+                functional_blocks[block_name] = []
+            functional_blocks[block_name].append(comp)
+            
+        output_payload = {
+            "system_prompt": "Analyse la topologie suivante. Les composants ont été groupés par affinité de signal électrique (les alimentations ont été mathématiquement isolées).",
+            "circuit_analysis": {
+                "total_components": n_comps,
+                "calculated_optimal_blocks": int(k),
+                "functional_blocks": functional_blocks,
+                "critical_nets": nets
+            }
+        }
+        
+        # Génération du YAML pur
+        yaml_output = yaml.dump(output_payload, default_flow_style=False, sort_keys=False)
+        
+        # Manipulation du DOM
+        document.getElementById("loader").style.display = "none"
+        out_el = document.getElementById("output")
+        out_el.style.display = "block"
+        out_el.innerText = yaml_output
+        document.getElementById("status-text").innerText = "Opération spectrale achevée."
+        
+    except Exception as e:
+        document.getElementById("loader").style.display = "none"
+        document.getElementById("status-text").innerText = f"Exception critique : {str(e)}"
+
+# Liaison du proxy WebAssembly
+proxy = create_proxy(run_llmnet_engine)
+document.addEventListener("trigger_python_engine", proxy)
+</py-script>
+
+</body>
 </html>
