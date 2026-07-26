@@ -1,114 +1,226 @@
-<!DOCTYPE HTML>
-<html>
-	<head>
-		<title>Raphael Alexandre Pepe - Publications</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<link rel="stylesheet" href="assets/css/custom.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-	</head>
-	<body class="is-preload">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMNet - Convertisseur Topologique</title>
+    
+    <!-- Importation de PyScript (Python dans le navigateur via WebAssembly) -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
 
-		<div id="wrapper" class="fade-in">
+    <!-- Configuration de l'environnement Python et de ses dépendances mathématiques -->
+    <py-config>
+        packages = ["networkx", "numpy", "scikit-learn", "pyyaml"]
+    </py-config>
 
-			<div id="intro">
-				<h1>R.PEPE<br />Publications</h1>
-				<p>A curated collection of research, insights, and academic work.<br />
-				Browse and download PDF publications below.</p>
-				<ul class="actions">
-					<li><a href="#nav" class="button icon solid solo fa-arrow-down scrolly">Explore</a></li>
-				</ul>
-			</div>
+    <style>
+        /* Défi 3 : Topologie CSS Grid pour les bannières publicitaires */
+        body { margin: 0; font-family: system-ui, sans-serif; background: #f4f4f9; color: #333; }
+        
+        .layout-grid {
+            display: grid;
+            grid-template-areas:
+                "ad-top ad-top ad-top"
+                "ad-left content ad-right"
+                "ad-bottom ad-bottom ad-bottom";
+            grid-template-columns: 160px 1fr 160px; /* Largeur standard des bannières verticales */
+            grid-template-rows: 90px minmax(calc(100vh - 180px), auto) 90px;
+            min-height: 100vh;
+        }
 
-			<nav id="nav">
-				<ul class="links">
-					<li class="active"><a href="#main" class="scrolly">Publications</a></li>
-					<li><a href="#about" class="scrolly">Contact & Info</a></li>
-				</ul>
-			</nav>
+        .ad-space {
+            background-color: #e0e0e0;
+            border: 1px dashed #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .ad-top { grid-area: ad-top; }
+        .ad-bottom { grid-area: ad-bottom; }
+        .ad-left { grid-area: ad-left; }
+        .ad-right { grid-area: ad-right; }
 
-			<div id="main">
+        .content {
+            grid-area: content;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
 
-				<section class="posts" id="publications-grid">
-				</section>
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        button { background: #0056b3; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 15px;}
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #output { background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; display: none; }
+        
+        /* Fausse modale pour simuler la vidéo publicitaire */
+        #ad-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); color: white; justify-content: center; align-items: center; flex-direction: column; z-index: 1000; }
+    </style>
+</head>
+<body>
 
-				<div id="pub-empty" style="display:none; text-align:center; padding: 4em 2em;">
-					<span class="icon solid fa-file-alt" style="font-size: 3em; display: block; margin-bottom: 0.5em; opacity: 0.5;"></span>
-					<h3>No publications found</h3>
-					<p>Add PDF and image files with matching names to your publications folder.</p>
-				</div>
+<div class="layout-grid">
+    <!-- Emplacements pour les scripts de votre régie publicitaire (ex: Google AdSense, Monetag) -->
+    <div class="ad-space ad-top">Bannière Haut (728x90)</div>
+    <div class="ad-space ad-left">Bannière Gauche (160x600)</div>
+    
+    <div class="content">
+        <div class="card">
+            <h1>LLMNet Engine</h1>
+            <p>Convertisseur de topologie EasyEDA vers Netlist Sémantique.</p>
+            
+            <input type="file" id="file-upload" accept=".json">
+            <br>
+            <!-- Bouton déclencheur de la chaîne d'événements -->
+            <button id="process-btn" disabled>Visionner une publicité pour analyser</button>
+            
+            <h3 id="status-text"></h3>
+            <pre id="output"></pre>
+        </div>
+    </div>
 
-				<section class="post" id="about">
-					<header class="major">
-						<h2>Contact & Info</h2>
-					</header>
+    <div class="ad-space ad-right">Bannière Droite (160x600)</div>
+    <div class="ad-space ad-bottom">Bannière Bas (728x90)</div>
+</div>
 
-					<div class="profile-card" style="margin-bottom: 3rem;">
-						<div class="profile-avatar">
-							<img src="images/avatar.jpg" alt="Profile photo" id="profile-img"
-							     onerror="this.style.display='none'; document.getElementById('profile-initials').style.display='flex';" />
-							<div id="profile-initials" class="profile-initials" style="display:none;">RP</div>
-						</div>
-						<div class="profile-info">
-							<h2 class="profile-name" style="color: #212931 !important;">Raphael Alexandre Pepe</h2>
-							<p class="profile-title" style="color: #717981 !important;">Applied Mathematics & Software Development · University of Geneva (UNIGE)</p>
-							<p class="profile-bio" style="color: #212931 !important; text-align: justify;">
-								I am highly open to collaborative opportunities and welcome inquiries regarding academic research, innovative software projects, or professional ventures. If you would like to discuss potential initiatives, joint work, or technical inquiries, please feel free to reach out. For the most efficient communication, I kindly ask that you contact me primarily via email, as I monitor my inbox closely and will respond to your message promptly.
-							</p>
-							<div class="profile-tags">
-								<span class="tag">Applied Mathematics</span>
-								<span class="tag">Software Development</span>
-							</div>
-						</div>
-					</div>
+<!-- Interface de la publicité avec récompense (Rewarded Ad) -->
+<div id="ad-modal">
+    <h2>Publicité Vidéo en cours...</h2>
+    <p>Merci de patienter pour soutenir le projet.</p>
+    <h1 id="ad-timer">5</h1>
+</div>
 
-					<div class="contact-grid">
-						<div class="contact-card" onclick="window.location.href='mailto:prf.erasp@gmail.com'" style="cursor: pointer; text-align: center; padding: 2rem 1rem;">
-							<span class="icon solid fa-envelope contact-icon" style="color: #212931 !important; display: block; margin-bottom: 0.5rem;"></span>
-							<h4 style="color: #717981 !important; margin: 0;">Email</h4>
-						</div>
-						
-						<div class="contact-card" onclick="window.open('https://www.linkedin.com/in/raphael-pepe-b32858416/', '_blank')" style="cursor: pointer; text-align: center; padding: 2rem 1rem;">
-							<span class="icon brands fa-linkedin contact-icon" style="color: #212931 !important; display: block; margin-bottom: 0.5rem;"></span>
-							<h4 style="color: #717981 !important; margin: 0;">LinkedIn</h4>
-						</div>
-						
-						<div class="contact-card" onclick="window.open('https://github.com/PepeRaphael', '_blank')" style="cursor: pointer; text-align: center; padding: 2rem 1rem;">
-							<span class="icon brands fa-github contact-icon" style="color: #212931 !important; display: block; margin-bottom: 0.5rem;"></span>
-							<h4 style="color: #717981 !important; margin: 0;">GitHub</h4>
-						</div>
-						
-						<div class="contact-card" onclick="window.open('https://www.unige.ch', '_blank')" style="cursor: pointer; text-align: center; padding: 2rem 1rem;">
-							<span class="icon solid fa-university contact-icon" style="color: #212931 !important; display: block; margin-bottom: 0.5rem;"></span>
-							<h4 style="color: #717981 !important; margin: 0;">UNIGE</h4>
-						</div>
-					</div>
+<script>
+    // Défi 2 : Gestion asynchrone des états de l'interface
+    const fileInput = document.getElementById('file-upload');
+    const processBtn = document.getElementById('process-btn');
+    const outputDiv = document.getElementById('output');
+    const statusText = document.getElementById('status-text');
+    let uploadedFileContent = null;
 
-				</section>
+    // Déverrouille le bouton si un fichier est sélectionné
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                uploadedFileContent = event.target.result;
+                processBtn.disabled = false;
+            };
+            reader.readAsText(file);
+        }
+    });
 
-			</div>
+    // Simulation de l'API d'une régie publicitaire (Rewarded Video) via une Promesse
+    function showRewardedAd() {
+        return new Promise((resolve, reject) => {
+            const modal = document.getElementById('ad-modal');
+            const timerEl = document.getElementById('ad-timer');
+            modal.style.display = 'flex';
+            
+            let timeLeft = 5; // Simulation d'une vidéo de 5 secondes
+            
+            const interval = setInterval(() => {
+                timeLeft -= 1;
+                timerEl.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    modal.style.display = 'none';
+                    resolve(true); // La promesse est tenue : l'utilisateur a vu la pub
+                }
+            }, 1000);
+        });
+    }
 
-			<div id="copyright" style="padding-top: 3rem;">
-				<p style="font-size: 0.7rem; color: rgba(255, 255, 255, 0.25); text-align: center; max-width: 900px; margin: 0 auto 2rem auto; line-height: 1.5; font-family: sans-serif;">
-					<strong>Legal Disclaimer:</strong> All content, research documents, code snippets, and intellectual property provided on this website are the exclusive property of Raphael Alexandre Pepe, unless otherwise stated. They are provided "as is" for academic, informational, and professional portfolio purposes without any express or implied warranties. Any unauthorized reproduction, distribution, or commercial use is strictly prohibited. The author assumes no liability for any errors, omissions, or damages resulting from the use of this information.
-				</p>
-				<ul>
-					<li>&copy; Raphael Alexandre Pepe. All rights reserved.</li>
-					<li>Design adapted from <a href="https://html5up.net" target="_blank" rel="noopener">HTML5 UP</a> (Released under <a href="http://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0 License</a>)</li>
-				</ul>
-			</div>
+    // Chaîne d'exécution principale
+    processBtn.addEventListener('click', async () => {
+        processBtn.disabled = true;
+        statusText.innerText = "Chargement de la publicité...";
+        
+        try {
+            // 1. Transition vers l'état S_playing_ad
+            await showRewardedAd();
+            
+            // 2. Transition vers l'état S_unlocked / S_processing
+            statusText.innerText = "Publicité terminée. Analyse topologique en cours...";
+            
+            // On écrit les données dans une variable globale accessible par Python
+            window.easyEdaRawData = uploadedFileContent;
+            
+            // Déclenchement de la fonction Python
+            // Le pont entre JS et Python est géré par la bibliothèque pyscript
+            document.dispatchEvent(new Event("trigger_python_engine"));
+            
+        } catch (error) {
+            statusText.innerText = "Erreur lors de l'affichage publicitaire.";
+            processBtn.disabled = false;
+        }
+    });
+</script>
 
-		</div>
+<!-- Le Moteur Mathématique : Code Python exécuté côté client -->
+<py-script>
+import json
+import networkx as nx
+import numpy as np
+from sklearn.cluster import SpectralClustering
+import yaml
+from pyscript import window, document
+from pyodide.ffi import create_proxy
 
-		<script src="assets/js/jquery.min.js"></script>
-		<script src="assets/js/jquery.scrollex.min.js"></script>
-		<script src="assets/js/jquery.scrolly.min.js"></script>
-		<script src="assets/js/browser.min.js"></script>
-		<script src="assets/js/breakpoints.min.js"></script>
-		<script src="assets/js/util.js"></script>
-		<script src="assets/js/main.js"></script>
-		<script src="assets/js/publications.js"></script>
+def run_llmnet_engine(event):
+    raw_json = window.easyEdaRawData
+    if not raw_json:
+        return
+        
+    try:
+        data = json.loads(raw_json)
+        
+        # 1. Simulation de l'extraction des Nets (simplifiée pour l'architecture)
+        # Dans le système final, vous intégrerez ici les lois des nœuds de Kirchhoff
+        components_list = data.get("shape", [])
+        
+        # 2. Simulation d'une matrice Laplacienne pour la preuve de concept
+        # Génération d'une topologie factice basée sur la taille du fichier
+        n_nodes = max(3, min(10, len(raw_json) // 1000))
+        adj_matrix = np.ones((n_nodes, n_nodes)) - np.eye(n_nodes)
+        
+        # 3. Clustering Spectral
+        sc = SpectralClustering(n_clusters=2, affinity='precomputed')
+        labels = sc.fit_predict(adj_matrix)
+        
+        # 4. Génération YAML Sémantique
+        output = {
+            "system_instruction": "Architecture topologique analysée côté client.",
+            "metrics": {
+                "file_size_bytes": len(raw_json),
+                "detected_nodes": n_nodes
+            },
+            "spectral_clusters": {
+                f"BLOCK_{i}": int(label) for i, label in enumerate(labels)
+            }
+        }
+        
+        yaml_output = yaml.dump(output, default_flow_style=False)
+        
+        # 5. Rendu dans le DOM HTML
+        output_el = document.getElementById("output")
+        output_el.style.display = "block"
+        output_el.innerText = yaml_output
+        document.getElementById("status-text").innerText = "Analyse terminée avec succès."
+        
+    except Exception as e:
+        document.getElementById("status-text").innerText = f"Erreur d'analyse mathématique : {str(e)}"
 
-	</body>
+# Écoute de l'événement JavaScript
+proxy = create_proxy(run_llmnet_engine)
+document.addEventListener("trigger_python_engine", proxy)
+</py-script>
+
+</body>
 </html>
