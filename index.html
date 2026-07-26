@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLMNet - Convertisseur EasyEDA vers LLM</title>
+    <title>LLMNet - Semantic Topology Converter</title>
     
+    <!-- WebAssembly Python Engine -->
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
 
@@ -13,9 +14,9 @@
     </py-config>
 
     <style>
-        body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #1a1a1a; }
+        body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: #0f0f13; color: #e0e0e0; }
         
-        /* Grille de Monétisation */
+        /* Spatial Monetization Grid */
         .layout-grid {
             display: grid;
             grid-template-areas:
@@ -27,87 +28,86 @@
             min-height: 100vh;
         }
 
-        .ad-space { background-color: #dfe3e8; border: 1px dashed #a4b0be; display: flex; align-items: center; justify-content: center; color: #747d8c; font-size: 0.85em; text-align: center; }
+        .ad-space { background-color: #1a1a24; border: 1px dashed #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 0.85em; text-align: center; }
         .ad-top { grid-area: ad-top; } .ad-bottom { grid-area: ad-bottom; }
         .ad-left { grid-area: ad-left; } .ad-right { grid-area: ad-right; }
 
-        /* Interface Principale */
+        /* Main Interface */
         .content { grid-area: content; padding: 40px; max-width: 850px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); text-align: center; }
-        h1 { margin-top: 0; color: #2d3436; font-size: 2.2em; }
-        p.subtitle { color: #636e72; font-size: 1.1em; margin-bottom: 30px; }
+        .card { background: #1c1c28; padding: 40px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); text-align: center; border: 1px solid #2d2d3d; }
+        h1 { margin-top: 0; color: #ffffff; font-size: 2.2em; letter-spacing: -0.5px; }
+        p.subtitle { color: #8b8b9e; font-size: 1.1em; margin-bottom: 30px; }
         
-        /* Zone de Drag & Drop */
+        /* Drag & Drop Zone */
         .drop-zone {
-            border: 3px dashed #0984e3;
+            border: 2px dashed #3a3a52;
             border-radius: 12px;
             padding: 50px 20px;
-            background: #fcfcfc;
+            background: #14141d;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
         }
-        .drop-zone.dragover { background: #e3f2fd; border-color: #0056b3; transform: scale(1.02); }
+        .drop-zone.dragover { background: #1a2a3a; border-color: #3b82f6; transform: scale(1.02); }
         .drop-zone input[type="file"] { display: none; }
-        .drop-zone-icon { font-size: 40px; margin-bottom: 15px; }
+        .drop-zone-icon { font-size: 40px; margin-bottom: 15px; filter: grayscale(1); }
         
-        button { background: #0984e3; color: white; border: none; padding: 16px 32px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1em; margin-top: 25px; transition: 0.2s; box-shadow: 0 4px 6px rgba(9, 132, 227, 0.3); }
-        button:disabled { background: #b2bec3; cursor: not-allowed; box-shadow: none; }
-        button:not(:disabled):hover { background: #074b83; transform: translateY(-2px); }
+        button { background: #3b82f6; color: white; border: none; padding: 16px 32px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1em; margin-top: 25px; transition: 0.2s; }
+        button:disabled { background: #2d2d3d; color: #555; cursor: not-allowed; }
+        button:not(:disabled):hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
         
-        #status-text { margin-top: 20px; font-weight: 600; color: #2d3436; }
-        .loader { border: 4px solid #dfe6e9; border-top: 4px solid #0984e3; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
+        #status-text { margin-top: 20px; font-weight: 600; color: #8b8b9e; font-family: monospace; }
+        .loader { border: 3px solid #2d2d3d; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Vidéo Publicitaire */
-        #ad-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; flex-direction: column; z-index: 1000; }
-        .ad-container { background: black; border-radius: 8px; overflow: hidden; max-width: 600px; width: 90%; text-align: center; color: white; padding: 20px; border: 1px solid #333; }
-        video { width: 100%; border-radius: 4px; background: #000; margin-top: 15px; }
-        .ad-skip-text { margin-top: 15px; color: #b2bec3; font-size: 0.9em; }
+        /* Video Ad Modal */
+        #ad-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; flex-direction: column; z-index: 1000; }
+        .ad-container { background: #14141d; border-radius: 12px; overflow: hidden; max-width: 600px; width: 90%; text-align: center; color: white; padding: 30px; border: 1px solid #333; }
+        video { width: 100%; border-radius: 8px; background: #000; margin-top: 20px; outline: none; }
+        .ad-skip-text { margin-top: 20px; color: #8b8b9e; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
 <div class="layout-grid">
-    <div class="ad-space ad-top">Bannière Google AdSense / Monetag (728x90)</div>
-    <div class="ad-space ad-left">Skyscraper (160x600)</div>
+    <div class="ad-space ad-top">AdSpace (728x90)</div>
+    <div class="ad-space ad-left">AdSpace (160x600)</div>
     
     <div class="content">
         <div class="card">
-            <h1>LLMNet Engine ⚡</h1>
-            <p class="subtitle">Transforme tes schémas EasyEDA en Netlist Sémantique pour l'IA.</p>
+            <h1>LLMNet Engine</h1>
+            <p class="subtitle">Geometric coordinate extraction and Spectral Graph Analysis for EasyEDA.</p>
             
             <div class="drop-zone" id="drop-zone">
-                <div class="drop-zone-icon">📁</div>
-                <div id="drop-text">Glissez-déposez votre fichier <b>.json</b> EasyEDA ici<br>ou cliquez pour parcourir.</div>
+                <div class="drop-zone-icon">📥</div>
+                <div id="drop-text">Drag and drop your <b>.json</b> EasyEDA schematic here<br>or click to browse.</div>
                 <input type="file" id="file-upload" accept=".json">
             </div>
 
-            <button id="process-btn" disabled>Visionner l'annonce pour Analyser</button>
+            <button id="process-btn" disabled>Watch Sponsor Video to Analyze</button>
             
             <div id="loader" class="loader"></div>
             <div id="status-text"></div>
         </div>
     </div>
 
-    <div class="ad-space ad-right">Skyscraper (160x600)</div>
-    <div class="ad-space ad-bottom">Bannière (728x90)</div>
+    <div class="ad-space ad-right">AdSpace (160x600)</div>
+    <div class="ad-space ad-bottom">AdSpace (728x90)</div>
 </div>
 
 <div id="ad-modal">
     <div class="ad-container">
-        <h3>Vidéo Sponsorisée</h3>
-        <p>Le traitement topologique est gratuit grâce à nos sponsors.</p>
+        <h3>Serverless Computing Sponsor</h3>
+        <p>The mathematical processing is executed on your local CPU. Please watch this sponsor message to unlock the algorithm.</p>
         <video id="ad-video" controls muted>
             <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-            Votre navigateur ne supporte pas la balise vidéo.
         </video>
-        <div class="ad-skip-text" id="ad-skip-text">La vidéo doit être terminée pour débloquer le fichier.</div>
+        <div class="ad-skip-text" id="ad-skip-text">Analysis will begin automatically upon completion.</div>
     </div>
 </div>
 
 <script>
-    // --- 1. GESTION DU DRAG & DROP ---
+    // 1. Drag & Drop Logic
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-upload');
     const dropText = document.getElementById('drop-text');
@@ -141,32 +141,30 @@
 
     function handleFile(file) {
         if (!file || !file.name.endsWith('.json')) {
-            alert("Veuillez sélectionner un fichier JSON EasyEDA valide.");
+            alert("Please select a valid EasyEDA JSON file.");
             return;
         }
         const reader = new FileReader();
         reader.onload = (event) => {
             window.easyEdaRawData = event.target.result;
             window.easyEdaFileName = file.name.replace('.json', '');
-            dropText.innerHTML = `Fichier chargé : <b>${file.name}</b>`;
-            dropZone.style.borderColor = "#00b894";
+            dropText.innerHTML = `Loaded in memory: <br><span style="color:#3b82f6; font-weight:bold;">${file.name}</span>`;
+            dropZone.style.borderColor = "#3b82f6";
             processBtn.disabled = false;
         };
         reader.readAsText(file);
     }
 
-    // --- 2. GESTION DE LA VIDÉO ET DU TÉLÉCHARGEMENT ---
+    // 2. Video Ad State Machine & Auto-Download Bridge
     const adModal = document.getElementById('ad-modal');
     const adVideo = document.getElementById('ad-video');
     const loader = document.getElementById('loader');
 
-    // Fonction appelée par Python (PyScript) une fois le fichier généré
     window.triggerDownload = function(yamlContent) {
         loader.style.display = "none";
-        statusText.style.color = "#00b894";
-        statusText.innerText = "Analyse terminée ! Téléchargement en cours...";
+        statusText.style.color = "#10b981";
+        statusText.innerText = "> Analysis complete. Initiating auto-download.";
         
-        // Création et téléchargement automatique du fichier
         const blob = new Blob([yamlContent], { type: 'text/yaml' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -178,25 +176,27 @@
         URL.revokeObjectURL(url);
     };
 
+    window.updateStatus = function(msg) {
+        statusText.innerText = `> ${msg}`;
+    };
+
     processBtn.addEventListener('click', () => {
         processBtn.disabled = true;
         adModal.style.display = 'flex';
         adVideo.play();
     });
 
-    // L'analyse commence *uniquement* quand la vidéo est terminée
     adVideo.addEventListener('ended', () => {
         adModal.style.display = 'none';
-        statusText.innerText = "Analyse du Laplacien et clustering en cours...";
         loader.style.display = "block";
-        
-        // Déclenche l'algorithme Python
-        setTimeout(() => document.dispatchEvent(new Event("trigger_python_engine")), 200);
+        statusText.innerText = "> Initializing WebAssembly Python environment...";
+        setTimeout(() => document.dispatchEvent(new Event("trigger_python_engine")), 150);
     });
 </script>
 
 <py-script>
 import json
+import re
 import warnings
 import networkx as nx
 import numpy as np
@@ -205,74 +205,203 @@ import yaml
 from pyscript import window, document
 import js
 
-# Désactive les avertissements WebAssembly inoffensifs
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="threadpoolctl")
 
-def generate_rich_llm_netlist(raw_json):
-    """Génère une structure hyper-détaillée pensée spécifiquement pour Claude/ChatGPT"""
-    # En situation réelle, remplacez cette simulation par l'extraction des Nets
-    n_nodes = 15
-    adj_matrix = np.random.rand(n_nodes, n_nodes)
-    adj_matrix = (adj_matrix + adj_matrix.T) / 2
-    np.fill_diagonal(adj_matrix, 0)
-    
-    sc = SpectralClustering(n_clusters=3, affinity='precomputed', assign_labels='kmeans')
-    labels = sc.fit_predict(adj_matrix)
+def round_coord(val):
+    """Rounds coordinates to handle floating point inaccuracies in EasyEDA exports."""
+    return round(float(val), 1)
 
-    # Structure sémantique riche pour le LLM
-    llm_payload = {
+def parse_geometric_topology(raw_data):
+    """
+    Highly robust geometric parser. Extracts components and mathematically
+    resolves Nets by finding connected components of wire/pin coordinates.
+    """
+    js.updateStatus("Parsing geometric coordinates...")
+    data = json.loads(raw_data)
+    try:
+        shape_data = data.get("schematics", [{}])[0].get("dataStr", {}).get("shape", [])
+    except IndexError:
+        raise ValueError("Invalid EasyEDA format structure.")
+
+    spatial_graph = nx.Graph()
+    components = {}
+    net_labels = {}
+
+    for item in shape_data:
+        if not isinstance(item, str):
+            continue
+            
+        # Extract Wires
+        if item.startswith('W~'):
+            parts = item.split('~')
+            if len(parts) > 1:
+                coords = parts[1].split(' ')
+                for i in range(0, len(coords)-2, 2):
+                    try:
+                        p1 = (round_coord(coords[i]), round_coord(coords[i+1]))
+                        p2 = (round_coord(coords[i+2]), round_coord(coords[i+3]))
+                        spatial_graph.add_edge(p1, p2)
+                    except ValueError:
+                        continue
+
+        # Extract Explicit Net Labels
+        elif item.startswith('N~'):
+            parts = item.split('~')
+            if len(parts) >= 6:
+                try:
+                    px, py = round_coord(parts[1]), round_coord(parts[2])
+                    net_name = parts[5]
+                    net_labels[(px, py)] = net_name
+                    spatial_graph.add_node((px, py))
+                except ValueError:
+                    continue
+
+        # Extract Components and Pins
+        elif item.startswith('LIB~'):
+            id_match = re.search(r'comment~([A-Z0-9_]+)~1~start', item)
+            type_match = re.search(r'package`([^`]+)`', item)
+            name_alias = re.search(r'comment~([^~]+)~1~start.*comment~([A-Z0-9_]+)~1~start', item)
+            
+            if id_match:
+                comp_id = id_match.group(1)
+                comp_type = type_match.group(1) if type_match else "Unknown"
+                if name_alias and name_alias.group(1) != comp_id:
+                    comp_type = f"{comp_type} ({name_alias.group(1)})"
+
+                components[comp_id] = {'type': comp_type, 'pins': {}}
+
+                # Extract pins encoded in the #@$P sequence
+                pin_segments = item.split('#@$P~')[1:]
+                for segment in pin_segments:
+                    coord_match = re.search(r'\^\^([-\d.]+)~([-\d.]+)\^\^', segment)
+                    parts = segment.split('~')
+                    if len(parts) >= 4 and coord_match:
+                        pin_num = parts[3]
+                        try:
+                            px = round_coord(coord_match.group(1))
+                            py = round_coord(coord_match.group(2))
+                            components[comp_id]['pins'][pin_num] = (px, py)
+                            spatial_graph.add_node((px, py))
+                        except ValueError:
+                            continue
+
+    js.updateStatus("Resolving Kirchhoff laws via union-find algorithms...")
+    # Graph spatial resolution
+    nets = {}
+    for idx, connected_nodes in enumerate(nx.connected_components(spatial_graph)):
+        net_name = f"NET_{idx}"
+        
+        # Override name if a net label is present in this connected component
+        for node in connected_nodes:
+            for label_coord, label_name in net_labels.items():
+                if abs(node[0] - label_coord[0]) <= 2.0 and abs(node[1] - label_coord[1]) <= 2.0:
+                    net_name = label_name
+                    break
+
+        connected_pins = []
+        for comp_id, comp_data in components.items():
+            for pin_num, pin_coord in comp_data['pins'].items():
+                if pin_coord in connected_nodes:
+                    connected_pins.append(f"{comp_id}.{pin_num}")
+
+        # Only register nets connecting 2 or more pins
+        if len(connected_pins) > 1:
+            nets[net_name] = connected_pins
+
+    return components, nets
+
+def estimate_optimal_k(adj_matrix):
+    js.updateStatus("Calculating Normalized Laplacian Eigenvalues...")
+    n = adj_matrix.shape[0]
+    if n < 3: return 1
+    
+    d = np.sum(adj_matrix, axis=1)
+    d_inv_sqrt = np.power(d, -0.5, where=d!=0)
+    D_inv_sqrt = np.diag(d_inv_sqrt)
+    
+    L_sym = np.eye(n) - np.dot(D_inv_sqrt, np.dot(adj_matrix, D_inv_sqrt))
+    eigenvalues = np.linalg.eigvalsh(L_sym)
+    
+    gaps = np.diff(eigenvalues)
+    max_k = max(2, min(n // 2, 8))
+    optimal_k = np.argmax(gaps[:max_k]) + 1
+    return max(2, optimal_k)
+
+def generate_llm_payload(raw_json):
+    components, nets = parse_geometric_topology(raw_json)
+    
+    comp_keys = list(components.keys())
+    n_comps = len(comp_keys)
+    
+    if n_comps == 0:
+        raise ValueError("No valid components extracted. Check JSON format.")
+
+    js.updateStatus("Building bipartite projection matrix...")
+    adj_matrix = np.zeros((n_comps, n_comps))
+    
+    for net_name, pins in nets.items():
+        net_degree = len(pins)
+        if net_degree > 1:
+            # Power nets (GND, VCC) get penalized logarithmically to isolate logic
+            weight = 1.0 / np.log(net_degree + 1)
+            comp_indices = []
+            for pin in pins:
+                cid = pin.split('.')[0]
+                if cid in comp_keys and cid not in comp_indices:
+                    comp_indices.append(cid)
+                    
+            for i in range(len(comp_indices)):
+                for j in range(i+1, len(comp_indices)):
+                    idx_i = comp_keys.index(comp_indices[i])
+                    idx_j = comp_keys.index(comp_indices[j])
+                    adj_matrix[idx_i, idx_j] += weight
+                    adj_matrix[idx_j, idx_i] += weight
+
+    k = estimate_optimal_k(adj_matrix)
+    js.updateStatus(f"Clustering matrix into {k} functional sub-systems...")
+    
+    sc = SpectralClustering(n_clusters=k, affinity='precomputed', assign_labels='kmeans')
+    labels = sc.fit_predict(adj_matrix)
+    
+    functional_blocks = {f"BLOCK_{i}": [] for i in range(k)}
+    for comp_id, label in zip(comp_keys, labels):
+        comp_info = {"id": comp_id, "type": components[comp_id]['type']}
+        functional_blocks[f"BLOCK_{label}"].append(comp_info)
+
+    # Reconstruct data explicitly for LLM ingestion
+    payload = {
         "_metadata": {
-            "tool": "LLMNet Engine v1.0",
-            "format": "Semantic Netlist for LLM",
-            "purpose": "Circuit Design Review & Diagnosis"
+            "generator": "LLMNet Semantic Engine v2.0",
+            "mathematical_model": "Spectral clustering on degree-penalized bipartite graph projection."
         },
-        "llm_instruction": (
-            "Tu es un ingénieur en conception électronique expert. "
-            "Lis la topologie ci-dessous. Le circuit a été divisé algorithmiquement en blocs fonctionnels "
-            "par clustering spectral basé sur la densité de câblage. Identifie le rôle de chaque bloc, "
-            "cherche les erreurs de conception (ex: I2C sans pull-up, découplage manquant) et propose des améliorations."
+        "structure_explanation": (
+            "This file contains a semantic breakdown of an electronic schematic. "
+            "Instead of a raw netlist, components have been grouped into functional blocks "
+            "based on the eigenvectors of the circuit's normalized Laplacian matrix. "
+            "Global nets (GND, VCC) were mathematically penalized to reveal the true logic pathways."
         ),
         "circuit_metrics": {
-            "total_pins": n_nodes,
-            "detected_nets": 8,
-            "spectral_clusters_found": 3
+            "total_components": n_comps,
+            "total_nets": len(nets),
+            "calculated_optimal_blocks": int(k)
         },
-        "topology": {
-            "BLOCK_0 (Hypothèse: Power Management)": [
-                {"id": "U1", "type": "Regulator", "connections": ["VCC_IN", "GND", "3V3_OUT"]},
-                {"id": "C1", "type": "Capacitor 10uF", "connections": ["3V3_OUT", "GND"]}
-            ],
-            "BLOCK_1 (Hypothèse: MCU Logic)": [
-                {"id": "U2", "type": "Microcontroller", "connections": ["3V3_OUT", "GND", "I2C_SDA", "I2C_SCL"]},
-                {"id": "R1", "type": "Resistor 10k", "connections": ["I2C_SDA", "3V3_OUT"]}
-            ],
-            "BLOCK_2 (Hypothèse: External Interface)": [
-                {"id": "J1", "type": "Connector", "connections": ["I2C_SDA", "I2C_SCL", "GND"]}
-            ]
-        },
-        "critical_warnings_from_engine": [
-            "Avertissement: I2C_SCL net seems missing a pull-up resistor."
-        ]
+        "functional_blocks": functional_blocks,
+        "connectivity_matrix": nets
     }
-    
-    # Génération propre du YAML
-    return yaml.dump(llm_payload, allow_unicode=True, default_flow_style=False, sort_keys=False)
 
-def run_engine(event):
+    return yaml.dump(payload, allow_unicode=True, default_flow_style=False, sort_keys=False)
+
+def trigger_engine(event):
     raw_json = window.easyEdaRawData
     try:
-        # Traitement mathématique...
-        yaml_output = generate_rich_llm_netlist(raw_json)
-        
-        # Appel de la fonction JavaScript pour lancer le téléchargement local !
+        yaml_output = generate_llm_payload(raw_json)
         js.triggerDownload(yaml_output)
-        
     except Exception as e:
-        document.getElementById("status-text").innerText = f"Erreur critique: {str(e)}"
+        js.updateStatus(f"Critical Mathematical Failure: {str(e)}")
+        document.getElementById("loader").style.display = "none"
 
-# Ecouteur d'événement
 from pyodide.ffi import create_proxy
-proxy = create_proxy(run_engine)
+proxy = create_proxy(trigger_engine)
 document.addEventListener("trigger_python_engine", proxy)
 </py-script>
 
