@@ -3,382 +3,1064 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLMNet - Semantic Topology Converter</title>
+    <title>Piano Sight-Reading | Master Sheet Music in Real-Time</title>
+    <meta name="description" content="The ultimate piano sight-reading software with real-time MIDI evaluation, infinite LilyPond score generation, and AI-driven coaching.">
     
-    <!-- WebAssembly Python Engine -->
-    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
-    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
-
-    <py-config>
-        packages = ["networkx", "numpy", "scikit-learn", "pyyaml"]
-    </py-config>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: #0f0f13; color: #e0e0e0; }
-        
-        /* Spatial Monetization Grid */
-        .layout-grid {
-            display: grid;
-            grid-template-areas:
-                "ad-top ad-top ad-top"
-                "ad-left content ad-right"
-                "ad-bottom ad-bottom ad-bottom";
-            grid-template-columns: 160px 1fr 160px;
-            grid-template-rows: 90px minmax(calc(100vh - 180px), auto) 90px;
-            min-height: 100vh;
+        /* ==========================================================================
+           CSS VARIABLES & RESET
+           ========================================================================== */
+        :root {
+            --bg-dark: #0a0a0c;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.08);
+            --text-main: #f2f2f7;
+            --text-muted: #8e8e93;
+            --primary-blue: #007aff;
+            --primary-blue-hover: #005bb5;
+            --accent-gold: #f4af5f;
+            --accent-gold-hover: #d99a50;
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --font-sans: 'Inter', sans-serif;
+            --font-serif: 'Playfair Display', serif;
         }
 
-        .ad-space { background-color: #1a1a24; border: 1px dashed #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 0.85em; text-align: center; }
-        .ad-top { grid-area: ad-top; } .ad-bottom { grid-area: ad-bottom; }
-        .ad-left { grid-area: ad-left; } .ad-right { grid-area: ad-right; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        /* Main Interface */
-        .content { grid-area: content; padding: 40px; max-width: 850px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        .card { background: #1c1c28; padding: 40px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); text-align: center; border: 1px solid #2d2d3d; }
-        h1 { margin-top: 0; color: #ffffff; font-size: 2.2em; letter-spacing: -0.5px; }
-        p.subtitle { color: #8b8b9e; font-size: 1.1em; margin-bottom: 30px; }
-        
-        /* Drag & Drop Zone */
-        .drop-zone {
-            border: 2px dashed #3a3a52;
-            border-radius: 12px;
-            padding: 50px 20px;
-            background: #14141d;
-            cursor: pointer;
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* ==========================================================================
+           TYPOGRAPHY & UTILITIES
+           ========================================================================== */
+        h1, h2, h3 {
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-ai {
+            background: linear-gradient(135deg, #f4af5f 0%, #d96570 50%, #9b72cb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-padding {
+            padding: 6rem 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
             transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-blue-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #f4af5f 0%, #d96570 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(217, 101, 112, 0.3);
+        }
+
+        .btn-premium:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(217, 101, 112, 0.4);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        /* ==========================================================================
+           NAVIGATION
+           ========================================================================== */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1rem 0;
+            background: rgba(10, 10, 12, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-glass);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            color: var(--primary-blue);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-top: 80px;
+            overflow: hidden;
+        }
+
+        /* Abstract Piano Background using CSS */
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 122, 255, 0.1) 0%, rgba(10, 10, 12, 1) 70%);
+        }
+
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: repeating-linear-gradient(
+                90deg,
+                rgba(255,255,255,0.02) 0px,
+                rgba(255,255,255,0.02) 40px,
+                transparent 40px,
+                transparent 42px
+            );
+            transform: perspective(500px) rotateX(60deg);
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 5vw, 4.5rem);
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+
+        .platform-icons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+        }
+
+        .platform-icons i:hover {
+            color: var(--text-main);
+            transition: color 0.3s ease;
+        }
+
+        /* ==========================================================================
+           AD BANNERS (Strategic Placement)
+           ========================================================================== */
+        .ad-banner-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 0;
+            background-color: rgba(0,0,0,0.2);
+            border-top: 1px solid var(--border-glass);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .ad-placeholder {
+            width: 728px;
+            height: 90px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px dashed var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* ==========================================================================
+           FEATURES SECTION
+           ========================================================================== */
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            padding: 2.5rem;
+            border-radius: 20px;
+            transition: transform 0.3s ease, background 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: var(--bg-card-hover);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 122, 255, 0.1);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* ==========================================================================
+           AI PREMIUM HIGHLIGHT SECTION
+           ========================================================================== */
+        .ai-section {
+            background: radial-gradient(circle at 80% 20%, rgba(155, 114, 203, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 20% 80%, rgba(217, 101, 112, 0.15) 0%, transparent 50%);
+            border-top: 1px solid var(--border-glass);
+            border-bottom: 1px solid var(--border-glass);
             position: relative;
         }
-        .drop-zone.dragover { background: #1a2a3a; border-color: #3b82f6; transform: scale(1.02); }
-        .drop-zone input[type="file"] { display: none; }
-        .drop-zone-icon { font-size: 40px; margin-bottom: 15px; filter: grayscale(1); }
-        
-        button { background: #3b82f6; color: white; border: none; padding: 16px 32px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1em; margin-top: 25px; transition: 0.2s; }
-        button:disabled { background: #2d2d3d; color: #555; cursor: not-allowed; }
-        button:not(:disabled):hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
-        
-        #status-text { margin-top: 20px; font-weight: 600; color: #8b8b9e; font-family: monospace; }
-        .loader { border: 3px solid #2d2d3d; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Video Ad Modal */
-        #ad-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; flex-direction: column; z-index: 1000; }
-        .ad-container { background: #14141d; border-radius: 12px; overflow: hidden; max-width: 600px; width: 90%; text-align: center; color: white; padding: 30px; border: 1px solid #333; }
-        video { width: 100%; border-radius: 8px; background: #000; margin-top: 20px; outline: none; }
-        .ad-skip-text { margin-top: 20px; color: #8b8b9e; font-size: 0.9em; }
+        .ai-container {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+        }
+
+        .ai-content {
+            flex: 1;
+        }
+
+        .ai-content h2 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .ai-content p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .ai-features-list li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+        }
+
+        .ai-features-list i {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+        }
+
+        .ai-visual {
+            flex: 1;
+            position: relative;
+        }
+
+        .ai-visual-box {
+            width: 100%;
+            height: 400px;
+            background: rgba(20, 20, 25, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Pseudo-UI for AI visual */
+        .ai-visual-box::before {
+            content: 'Live Adaptation Matrix Active';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: monospace;
+            color: var(--accent-gold);
+            font-size: 0.8rem;
+        }
+
+        .waveform {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .wave-bar {
+            width: 8px;
+            background: linear-gradient(180deg, #f4af5f, #9b72cb);
+            border-radius: 4px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .wave-bar:nth-child(1) { height: 40px; animation-delay: 0.1s; }
+        .wave-bar:nth-child(2) { height: 80px; animation-delay: 0.2s; }
+        .wave-bar:nth-child(3) { height: 120px; animation-delay: 0.3s; }
+        .wave-bar:nth-child(4) { height: 60px; animation-delay: 0.4s; }
+        .wave-bar:nth-child(5) { height: 100px; animation-delay: 0.5s; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+
+        /* ==========================================================================
+           HOW IT WORKS
+           ========================================================================== */
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+            position: relative;
+        }
+
+        .steps-container::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--border-glass), transparent);
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: var(--bg-dark);
+            border: 2px solid var(--primary-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 122, 255, 0.2);
+        }
+
+        .step h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ==========================================================================
+           PRICING SECTION
+           ========================================================================== */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .pricing-card.popular {
+            border-color: var(--primary-blue);
+            box-shadow: 0 10px 30px rgba(0, 122, 255, 0.1);
+            position: relative;
+        }
+        
+        .pricing-card.ai-tier {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(217, 101, 112, 0.05) 100%);
+            border-color: rgba(244, 175, 95, 0.5);
+            box-shadow: 0 10px 30px rgba(244, 175, 95, 0.1);
+        }
+
+        .badge-popular {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-blue);
+            color: #fff;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .badge-ai {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #f4af5f, #d96570);
+            color: #fff;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .tier-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .ai-tier .tier-name {
+            color: var(--accent-gold);
+        }
+
+        .tier-price {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .tier-price span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .tier-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .feature-list {
+            flex: 1;
+            margin-bottom: 2rem;
+        }
+
+        .feature-list li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .feature-list i {
+            margin-top: 3px;
+            color: #34c759;
+        }
+
+        .feature-list .fa-times {
+            color: #ff3b30;
+        }
+
+        .pricing-card .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        /* ==========================================================================
+           DOWNLOAD SECTION
+           ========================================================================== */
+        .download-section {
+            background-color: var(--bg-card);
+            text-align: center;
+        }
+
+        .os-grid {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .os-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-glass);
+            padding: 2rem;
+            border-radius: 15px;
+            width: 180px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .os-card:hover {
+            border-color: var(--primary-blue);
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        .os-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .os-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .os-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        footer {
+            background-color: #050506;
+            padding: 4rem 0 2rem;
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-about p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            max-width: 400px;
+        }
+
+        .footer-links h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-links ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-blue);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* ==========================================================================
+           RESPONSIVE DESIGN
+           ========================================================================== */
+        @media (max-width: 900px) {
+            .ai-container, .footer-grid {
+                flex-direction: column;
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .nav-links {
+                display: none; /* In a full app, add a hamburger menu */
+            }
+            .steps-container {
+                flex-direction: column;
+            }
+            .steps-container::before {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="layout-grid">
-    <div class="ad-space ad-top">AdSpace (728x90)</div>
-    <div class="ad-space ad-left">AdSpace (160x600)</div>
-    
-    <div class="content">
-        <div class="card">
-            <h1>LLMNet Engine</h1>
-            <p class="subtitle">Geometric coordinate extraction and Spectral Graph Analysis for EasyEDA.</p>
-            
-            <div class="drop-zone" id="drop-zone">
-                <div class="drop-zone-icon">📥</div>
-                <div id="drop-text">Drag and drop your <b>.json</b> EasyEDA schematic here<br>or click to browse.</div>
-                <input type="file" id="file-upload" accept=".json">
+    <!-- NAVIGATION -->
+    <nav id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <i class="fa-solid fa-music"></i> PianoSight
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How it Works</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#download" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">Download Now</a>
             </div>
+        </div>
+    </nav>
 
-            <button id="process-btn" disabled>Watch Sponsor Video to Analyze</button>
-            
-            <div id="loader" class="loader"></div>
-            <div id="status-text"></div>
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1>Master Sight-Reading with <span class="text-gradient">Real-Time</span> Precision</h1>
+                <p>Universal MIDI compatibility. Infinite algorithmic sheet music generated via LilyPond. Connect your piano, set your constraints, and elevate your reading skills instantly.</p>
+                <div class="hero-cta">
+                    <a href="#download" class="btn btn-primary">Download Free</a>
+                    <a href="#pricing" class="btn btn-outline">View Plans</a>
+                </div>
+                <div class="platform-icons">
+                    <i class="fa-brands fa-apple" title="macOS & iOS"></i>
+                    <i class="fa-brands fa-windows" title="Windows"></i>
+                    <i class="fa-brands fa-linux" title="Linux"></i>
+                    <i class="fa-brands fa-android" title="Android"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AD BANNER 1 -->
+    <div class="ad-banner-container">
+        <div class="ad-placeholder">
+            Advertisement Space (728x90) - Google AdSense integration here
         </div>
     </div>
 
-    <div class="ad-space ad-right">AdSpace (160x600)</div>
-    <div class="ad-space ad-bottom">AdSpace (728x90)</div>
-</div>
+    <!-- FEATURES SECTION -->
+    <section id="features" class="section-padding">
+        <div class="container">
+            <div class="section-header">
+                <h2>Designed for True Musicians</h2>
+                <p style="color: var(--text-muted);">From strict rhythmic constraints to advanced polyrhythms.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-plug-circle-check"></i>
+                    </div>
+                    <h3>Universal MIDI Support</h3>
+                    <p>Plug-and-play compatibility. Whether you own a Yamaha Clavinova, a Roland, or a basic MIDI controller, our engine detects and evaluates your keystrokes with millisecond accuracy.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-scroll"></i>
+                    </div>
+                    <h3>LilyPond Rendering Engine</h3>
+                    <p>Say goodbye to blurry, static PDFs. Every exercise is dynamically engraved using the industry-standard LilyPond engine, providing beautiful, vector-quality SVG sheet music on the fly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <h3>Absolute Parametric Control</h3>
+                    <p>Customize everything. Set specific key signatures, restrict allowed note durations (from whole notes to sixteenths), cap chord intervals, and isolate specific keyboard ranges per hand.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <h3>Polyrhythms & Syncopation</h3>
+                    <p>Push your rhythmic boundaries. Toggle advanced settings to inject binary/ternary polyrhythms and complex syncopations into your sight-reading sessions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </div>
+                    <h3>High-Resolution Velocity</h3>
+                    <p>We read High-Res MIDI (CC 88) for extreme dynamic precision. The engine evaluates not just if you hit the right note, but exactly *how* you struck it (p, mf, f).</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                    </div>
+                    <h3>Smart Preset System</h3>
+                    <p>Save your favorite training configurations as JSON presets. Switch instantly from a "Chopin-style wide leaps" warmup to a "Bach-style counterpoint" session.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<div id="ad-modal">
-    <div class="ad-container">
-        <h3>Serverless Computing Sponsor</h3>
-        <p>The mathematical processing is executed on your local CPU. Please watch this sponsor message to unlock the algorithm.</p>
-        <video id="ad-video" controls muted>
-            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-        </video>
-        <div class="ad-skip-text" id="ad-skip-text">Analysis will begin automatically upon completion.</div>
+    <!-- AI PREMIUM SECTION -->
+    <section class="ai-section section-padding">
+        <div class="container ai-container">
+            <div class="ai-content">
+                <h2 class="text-gradient-ai">Meet the AI Learning Mode</h2>
+                <p>Available exclusively in the Premium tier, the AI engine acts as your personal conservatoire professor. It analyzes your real-time performance and adapts the generated score instantly.</p>
+                <ul class="ai-features-list">
+                    <li><i class="fa-solid fa-brain"></i> Adaptive Difficulty Scaling</li>
+                    <li><i class="fa-solid fa-chart-line"></i> Weakness Targeting (e.g., forces more ledger lines if you hesitate)</li>
+                    <li><i class="fa-solid fa-bolt"></i> Instant Rhythm Correction Paths</li>
+                    <li><i class="fa-solid fa-infinity"></i> Continuous Flow without UI interruption</li>
+                </ul>
+                <a href="#pricing" class="btn btn-premium" style="margin-top: 1rem;">Unlock AI Coaching</a>
+            </div>
+            <div class="ai-visual">
+                <div class="ai-visual-box">
+                    <div class="waveform">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AD BANNER 2 -->
+    <div class="ad-banner-container">
+        <div class="ad-placeholder">
+            Advertisement Space (728x90) - Google AdSense integration here
+        </div>
     </div>
-</div>
 
-<script>
-    // 1. Drag & Drop Logic
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-upload');
-    const dropText = document.getElementById('drop-text');
-    const processBtn = document.getElementById('process-btn');
-    const statusText = document.getElementById('status-text');
+    <!-- HOW IT WORKS -->
+    <section id="how-it-works" class="section-padding">
+        <div class="container">
+            <div class="section-header">
+                <h2>Start Practicing in Seconds</h2>
+            </div>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Connect</h3>
+                    <p>Plug your digital piano via USB. The software auto-detects true hardware MIDI ports.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Configure</h3>
+                    <p>Use the sleek Apple-style UI to dial in your exact difficulty, range, and tempo.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Play</h3>
+                    <p>Hit START. The engine generates infinite, seamless pages of music tailored to your settings.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    dropZone.addEventListener('click', () => fileInput.click());
-
-    ['dragover', 'dragenter'].forEach(evt => {
-        dropZone.addEventListener(evt, (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-    });
-
-    ['dragleave', 'drop'].forEach(evt => {
-        dropZone.addEventListener(evt, (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-        });
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-        const file = e.dataTransfer.files[0];
-        handleFile(file);
-    });
-
-    fileInput.addEventListener('change', (e) => {
-        handleFile(e.target.files[0]);
-    });
-
-    function handleFile(file) {
-        if (!file || !file.name.endsWith('.json')) {
-            alert("Please select a valid EasyEDA JSON file.");
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            window.easyEdaRawData = event.target.result;
-            window.easyEdaFileName = file.name.replace('.json', '');
-            dropText.innerHTML = `Loaded in memory: <br><span style="color:#3b82f6; font-weight:bold;">${file.name}</span>`;
-            dropZone.style.borderColor = "#3b82f6";
-            processBtn.disabled = false;
-        };
-        reader.readAsText(file);
-    }
-
-    // 2. Video Ad State Machine & Auto-Download Bridge
-    const adModal = document.getElementById('ad-modal');
-    const adVideo = document.getElementById('ad-video');
-    const loader = document.getElementById('loader');
-
-    window.triggerDownload = function(yamlContent) {
-        loader.style.display = "none";
-        statusText.style.color = "#10b981";
-        statusText.innerText = "> Analysis complete. Initiating auto-download.";
-        
-        const blob = new Blob([yamlContent], { type: 'text/yaml' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `LLMNet_${window.easyEdaFileName}.yaml`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
-
-    window.updateStatus = function(msg) {
-        statusText.innerText = `> ${msg}`;
-    };
-
-    processBtn.addEventListener('click', () => {
-        processBtn.disabled = true;
-        adModal.style.display = 'flex';
-        adVideo.play();
-    });
-
-    adVideo.addEventListener('ended', () => {
-        adModal.style.display = 'none';
-        loader.style.display = "block";
-        statusText.innerText = "> Initializing WebAssembly Python environment...";
-        setTimeout(() => document.dispatchEvent(new Event("trigger_python_engine")), 150);
-    });
-</script>
-
-<py-script>
-import json
-import re
-import warnings
-import networkx as nx
-import numpy as np
-from sklearn.cluster import SpectralClustering
-import yaml
-from pyscript import window, document
-import js
-
-# Suppression des alertes WebAssembly
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="threadpoolctl")
-
-def snap(val):
-    """
-    Fonction de capture algébrique.
-    Force les coordonnées sur une grille mathématique stricte de 5 unités.
-    """
-    return int(round(float(val) / 5.0) * 5.0)
-
-def parse_true_topology(raw_data):
-    """Extraction spatiale résolvant l'illusion des labels et des flottants."""
-    data = json.loads(raw_data)
-    shape_data = data.get("schematics", [{}])[0].get("dataStr", {}).get("shape", [])
-    
-    spatial_graph = nx.Graph()
-    components = {}
-    net_labels = {}
-    
-    for item in shape_data:
-        if not isinstance(item, str): continue
-        
-        # 1. Traitement des fils physiques
-        if item.startswith('W~'):
-            parts = item.split('~')
-            coords = parts[1].split(' ')
-            for i in range(0, len(coords)-2, 2):
-                p1 = (snap(coords[i]), snap(coords[i+1]))
-                p2 = (snap(coords[i+2]), snap(coords[i+3]))
-                spatial_graph.add_edge(p1, p2)
-        
-        # 2. Traitement des Nœuds Logiques (NetLabels)
-        elif item.startswith('N~'):
-            parts = item.split('~')
-            if len(parts) >= 6:
-                px, py = snap(parts[1]), snap(parts[2])
-                net_name = parts[5] # Le nom du réseau (GND, 5v, etc.)
-                if net_name not in net_labels:
-                    net_labels[net_name] = []
-                net_labels[net_name].append((px, py))
-                spatial_graph.add_node((px, py))
-        
-        # 3. Traitement des Composants et de leurs Broches
-        elif item.startswith('LIB~'):
-            id_match = re.search(r'comment~([A-Z0-9_]+)~1~start', item)
-            type_match = re.search(r'package`([^`]+)`', item)
-            alias_match = re.search(r'comment~([^~]+)~1~start.*comment~([A-Z0-9_]+)~1~start', item)
-            
-            if id_match:
-                comp_id = id_match.group(1)
-                comp_type = type_match.group(1) if type_match else "UNK"
-                if alias_match and alias_match.group(1) != comp_id:
-                    comp_type = f"{comp_type} ({alias_match.group(1)})"
-                    
-                components[comp_id] = {'type': comp_type, 'pins': {}}
+    <!-- PRICING SECTION -->
+    <section id="pricing" class="section-padding">
+        <div class="container">
+            <div class="section-header">
+                <h2>Choose Your Path to Mastery</h2>
+                <p style="color: var(--text-muted);">Simple pricing. No hidden fees. Elevate your sight-reading today.</p>
+            </div>
+            <div class="pricing-grid">
                 
-                # Découpage des blocs de broches
-                for segment in item.split('#@$P~')[1:]:
-                    parts = segment.split('~')
-                    if len(parts) > 3:
-                        pin_num = parts[2] # Index corrigé pour le numéro de broche
-                        coord_match = re.search(r'\^\^([-\d.]+)~([-\d.]+)\^\^', segment)
-                        if coord_match:
-                            px = snap(coord_match.group(1))
-                            py = snap(coord_match.group(2))
-                            components[comp_id]['pins'][pin_num] = (px, py)
-                            spatial_graph.add_node((px, py))
-    
-    # 4. Fusion Algorithmique
-    # Création des arêtes virtuelles entre les labels de même nom
-    for name, coords in net_labels.items():
-        for i in range(len(coords)-1):
-            spatial_graph.add_edge(coords[i], coords[i+1])
+                <!-- Free Tier -->
+                <div class="pricing-card">
+                    <div class="tier-name">Free Edition</div>
+                    <div class="tier-price">$0<span> / forever</span></div>
+                    <div class="tier-desc">Perfect for beginners wanting to test the waters. Supported by minimal ads.</div>
+                    <ul class="feature-list">
+                        <li><i class="fa-solid fa-check"></i> Basic LilyPond Generation</li>
+                        <li><i class="fa-solid fa-check"></i> Standard MIDI Support</li>
+                        <li><i class="fa-solid fa-check"></i> C Major & G Major only</li>
+                        <li><i class="fa-solid fa-check"></i> Ad-supported downloads (Watch a short video to generate new scores)</li>
+                        <li><i class="fa-solid fa-times"></i> No Polyrhythms</li>
+                        <li><i class="fa-solid fa-times"></i> No AI Learning Mode</li>
+                    </ul>
+                    <a href="#download" class="btn btn-outline">Download Free</a>
+                </div>
+
+                <!-- Pro Tier -->
+                <div class="pricing-card popular">
+                    <div class="badge-popular">Most Popular</div>
+                    <div class="tier-name" style="color: var(--primary-blue);">Pro Edition</div>
+                    <div class="tier-price">$29<span> / lifetime</span></div>
+                    <div class="tier-desc">The complete manual toolkit. Full offline access with no interruptions.</div>
+                    <ul class="feature-list">
+                        <li><i class="fa-solid fa-check"></i> <strong>Zero Advertisements</strong></li>
+                        <li><i class="fa-solid fa-check"></i> All 15 Key Signatures</li>
+                        <li><i class="fa-solid fa-check"></i> Advanced Polyrhythms & Syncopation</li>
+                        <li><i class="fa-solid fa-check"></i> High-Res Velocity & Dynamics</li>
+                        <li><i class="fa-solid fa-check"></i> Custom Preset Saving</li>
+                        <li><i class="fa-solid fa-times"></i> No AI Learning Mode</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Buy Pro License</a>
+                </div>
+
+                <!-- AI Tier -->
+                <div class="pricing-card ai-tier">
+                    <div class="badge-ai">Ultimate</div>
+                    <div class="tier-name">Premium AI</div>
+                    <div class="tier-price">$9<span> / month</span></div>
+                    <div class="tier-desc">Harness the power of AI to dynamically adapt the score to your exact weaknesses.</div>
+                    <ul class="feature-list">
+                        <li><i class="fa-solid fa-check"></i> <strong>Everything in Pro</strong></li>
+                        <li><i class="fa-solid fa-check"></i> Real-time AI Difficulty Adaptation</li>
+                        <li><i class="fa-solid fa-check"></i> Smart Weakness Targeting</li>
+                        <li><i class="fa-solid fa-check"></i> In-depth Performance Analytics</li>
+                        <li><i class="fa-solid fa-check"></i> Priority Cloud Processing</li>
+                        <li><i class="fa-solid fa-check"></i> Free major updates</li>
+                    </ul>
+                    <a href="#" class="btn btn-premium">Start 7-Day Trial</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- DOWNLOAD SECTION -->
+    <section id="download" class="download-section section-padding">
+        <div class="container">
+            <h2>Download PianoSight</h2>
+            <p style="color: var(--text-muted); margin-top: 1rem;">Available across all major desktop and mobile platforms.</p>
             
-    # Recherche des composantes connexes (Équipotentielles)
-    nets = {}
-    for idx, cc in enumerate(nx.connected_components(spatial_graph)):
-        net_name = f"NET_AUTO_{idx}"
-        
-        # Écrasement du nom si un label logique fait partie de ce sous-graphe
-        for node in cc:
-            for name, coords in net_labels.items():
-                if node in coords:
-                    net_name = name
-                    break
-        
-        # Collecte des broches incluses dans cette équipotentielle
-        connected_pins = []
-        for cid, cdata in components.items():
-            for pnum, pcoord in cdata['pins'].items():
-                if pcoord in cc:
-                    connected_pins.append(f"{cid}.{pnum}")
-        
-        if len(connected_pins) > 1:
-            nets[net_name] = connected_pins
-            
-    return components, nets
+            <div class="os-grid">
+                <div class="os-card" onclick="window.location.href='#'">
+                    <i class="fa-brands fa-apple"></i>
+                    <h4>macOS</h4>
+                    <p>Apple Silicon & Intel</p>
+                </div>
+                <div class="os-card" onclick="window.location.href='#'">
+                    <i class="fa-brands fa-windows"></i>
+                    <h4>Windows</h4>
+                    <p>Windows 10 & 11</p>
+                </div>
+                <div class="os-card" onclick="window.location.href='#'">
+                    <i class="fa-brands fa-linux"></i>
+                    <h4>Linux</h4>
+                    <p>.deb / AppImage</p>
+                </div>
+                <div class="os-card" onclick="window.location.href='#'">
+                    <i class="fa-brands fa-app-store-ios"></i>
+                    <h4>iOS</h4>
+                    <p>iPad OS Recommended</p>
+                </div>
+                <div class="os-card" onclick="window.location.href='#'">
+                    <i class="fa-brands fa-google-play"></i>
+                    <h4>Android</h4>
+                    <p>Requires OTG MIDI</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-def estimate_optimal_k(adj_matrix):
-    """Calcul spectral pour trouver le saut optimal de l'Eigengap."""
-    n = adj_matrix.shape[0]
-    if n < 3: return 1
-    d = np.sum(adj_matrix, axis=1)
-    d_inv_sqrt = np.power(d, -0.5, where=d!=0)
-    D_inv_sqrt = np.diag(d_inv_sqrt)
-    
-    L_sym = np.eye(n) - np.dot(D_inv_sqrt, np.dot(adj_matrix, D_inv_sqrt))
-    eigenvalues = np.linalg.eigvalsh(L_sym)
-    gaps = np.diff(eigenvalues)
-    
-    max_k = max(2, min(n // 3, 10))
-    optimal_k = np.argmax(gaps[:max_k]) + 1
-    return max(2, optimal_k)
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="#" class="logo" style="color: white; font-size: 1.2rem;">
+                        <i class="fa-solid fa-music"></i> PianoSight
+                    </a>
+                    <p>An advanced algorithmic training tool designed to bridge the gap between traditional sheet music and modern computational generation. Forged through the discipline of the Conservatoire de Musique de Genève.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#download">Download</a></li>
+                        <li><a href="#">Release Notes</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">MIDI Setup Guide</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 PianoSight. Designed and developed by Raphael Alexandre Pepe. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
-def generate_rich_llm_netlist(raw_json):
-    # Parsing géométrique strict
-    components, nets = parse_true_topology(raw_json)
-    comp_keys = list(components.keys())
-    n_comps = len(comp_keys)
-    
-    # Matrice de projection
-    adj_matrix = np.zeros((n_comps, n_comps))
-    for net_name, pins in nets.items():
-        deg = len(pins)
-        if deg > 1:
-            # Pénalisation inverse pour isoler les réseaux d'alimentation (VCC/GND)
-            weight = 1.0 / np.log(deg + 1) 
-            cids = list(set([p.split('.')[0] for p in pins if p.split('.')[0] in comp_keys]))
-            
-            for i in range(len(cids)):
-                for j in range(i+1, len(cids)):
-                    idx1 = comp_keys.index(cids[i])
-                    idx2 = comp_keys.index(cids[j])
-                    adj_matrix[idx1, idx2] += weight
-                    adj_matrix[idx2, idx1] += weight
+    <!-- JAVASCRIPT -->
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
 
-    # Clustering Spectral
-    k = estimate_optimal_k(adj_matrix)
-    sc = SpectralClustering(n_clusters=k, affinity='precomputed', assign_labels='kmeans')
-    labels = sc.fit_predict(adj_matrix)
-
-    topology = {f"BLOCK_{i}": [] for i in range(k)}
-    for cid, label in zip(comp_keys, labels):
-        topology[f"BLOCK_{label}"].append({
-            "id": cid, 
-            "type": components[cid]['type']
-        })
-
-    payload = {
-        "system_instruction": "Agis en tant qu'ingénieur expert. Diagnostique cette architecture dont la topologie a été résolue par analyse spectrale.",
-        "metrics": {
-            "components_detected": n_comps,
-            "nets_resolved": len(nets),
-            "functional_blocks_found": int(k)
-        },
-        "topology": topology,
-        "connectivity_matrix": nets
-    }
-    return yaml.dump(payload, allow_unicode=True, default_flow_style=False, sort_keys=False)
-
-def run_engine(event):
-    try:
-        js.updateStatus("Extraction rigoureuse de la géométrie en cours...")
-        raw_json = window.easyEdaRawData
-        yaml_output = generate_rich_llm_netlist(raw_json)
-        js.triggerDownload(yaml_output)
-    except Exception as e:
-        js.updateStatus(f"Erreur algorithmique : {str(e)}")
-        document.getElementById("loader").style.display = "none"
-
-from pyodide.ffi import create_proxy
-proxy = create_proxy(run_engine)
-document.addEventListener("trigger_python_engine", proxy)
-</py-script>
-    
+        // Navbar blur and shrink effect on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.style.padding = '0.8rem 0';
+                nav.style.background = 'rgba(10, 10, 12, 0.95)';
+            } else {
+                nav.style.padding = '1rem 0';
+                nav.style.background = 'rgba(10, 10, 12, 0.8)';
+            }
+        });
+    </script>
 </body>
 </html>
