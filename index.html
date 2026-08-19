@@ -87,7 +87,10 @@
         }
 
         .btn {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
             padding: 0.8rem 2rem;
             border-radius: 30px;
             font-weight: 600;
@@ -182,6 +185,131 @@
             color: var(--text-main);
         }
 
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* ==========================================================================
+           AUTH MODAL (LOGIN / REGISTER)
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--text-main);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-size: 1rem;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .auth-link {
+            color: var(--primary-blue);
+            cursor: pointer;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+
         /* ==========================================================================
            HERO SECTION
            ========================================================================== */
@@ -194,7 +322,6 @@
             overflow: hidden;
         }
 
-        /* Abstract Piano Background using CSS */
         .hero-bg {
             position: absolute;
             top: 0;
@@ -411,7 +538,6 @@
             position: relative;
         }
         
-        /* Pseudo-UI for AI visual */
         .ai-visual-box::before {
             content: 'Live Adaptation Matrix Active';
             position: absolute;
@@ -540,21 +666,6 @@
             left: 50%;
             transform: translateX(-50%);
             background: var(--primary-blue);
-            color: #fff;
-            padding: 0.3rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .badge-ai {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(90deg, #f4af5f, #d96570);
             color: #fff;
             padding: 0.3rem 1rem;
             border-radius: 20px;
@@ -729,7 +840,7 @@
                 gap: 2rem;
             }
             .nav-links {
-                display: none; /* In a full app, add a hamburger menu */
+                display: none; 
             }
             .steps-container {
                 flex-direction: column;
@@ -748,14 +859,65 @@
             <a href="#" class="logo">
                 <i class="fa-solid fa-music"></i> PianoSight
             </a>
-            <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#how-it-works">How it Works</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#download" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">Download Now</a>
+            <div class="nav-actions">
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How it Works</a>
+                    <a href="#pricing">Pricing</a>
+                </div>
+                <button onclick="openAuthModal('login')" class="btn btn-outline" style="padding: 0.5rem 1.2rem; margin-left: 1rem;">
+                    <i class="fa-regular fa-user"></i> Sign In
+                </button>
+                <a href="#download" class="btn btn-primary" style="padding: 0.5rem 1.2rem;">Download Now</a>
             </div>
         </div>
     </nav>
+
+    <!-- AUTHENTICATION MODAL -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-card">
+            <button class="close-modal" onclick="closeAuthModal()"><i class="fa-solid fa-xmark"></i></button>
+            
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="auth-header">
+                    <h3>Welcome Back</h3>
+                    <p>Sign in to sync your presets and stats.</p>
+                </div>
+                <div class="form-group">
+                    <input type="email" placeholder="Email Address" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="password" placeholder="Password" class="form-control">
+                </div>
+                <button class="btn btn-primary auth-btn">Log In</button>
+                <div class="auth-footer">
+                    Don't have an account? <span class="auth-link" onclick="toggleAuthForm('register')">Sign up</span>
+                </div>
+            </div>
+
+            <!-- Register Form (Hidden by default) -->
+            <div id="registerForm" style="display: none;">
+                <div class="auth-header">
+                    <h3>Create Account</h3>
+                    <p>Join to unlock premium AI coaching.</p>
+                </div>
+                <div class="form-group">
+                    <input type="text" placeholder="Full Name" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="email" placeholder="Email Address" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="password" placeholder="Password" class="form-control">
+                </div>
+                <button class="btn btn-primary auth-btn">Create Account</button>
+                <div class="auth-footer">
+                    Already have an account? <span class="auth-link" onclick="toggleAuthForm('login')">Log in</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- HERO SECTION -->
     <section class="hero">
@@ -939,12 +1101,11 @@
                         <li><i class="fa-solid fa-check"></i> Custom Preset Saving</li>
                         <li><i class="fa-solid fa-times"></i> No AI Learning Mode</li>
                     </ul>
-                    <a href="#" class="btn btn-primary">Buy Pro License</a>
+                    <button onclick="openAuthModal('register')" class="btn btn-primary">Buy Pro License</button>
                 </div>
 
                 <!-- AI Tier -->
                 <div class="pricing-card ai-tier">
-                    <div class="badge-ai">Ultimate</div>
                     <div class="tier-name">Premium AI</div>
                     <div class="tier-price">$9<span> / month</span></div>
                     <div class="tier-desc">Harness the power of AI to dynamically adapt the score to your exact weaknesses.</div>
@@ -956,7 +1117,7 @@
                         <li><i class="fa-solid fa-check"></i> Priority Cloud Processing</li>
                         <li><i class="fa-solid fa-check"></i> Free major updates</li>
                     </ul>
-                    <a href="#" class="btn btn-premium">Start 7-Day Trial</a>
+                    <button onclick="openAuthModal('register')" class="btn btn-premium">Start 7-Day Trial</button>
                 </div>
 
             </div>
@@ -1061,6 +1222,37 @@
                 nav.style.background = 'rgba(10, 10, 12, 0.8)';
             }
         });
+
+        // Authentication Modal Logic
+        const modal = document.getElementById('authModal');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+
+        function openAuthModal(type) {
+            modal.classList.add('active');
+            toggleAuthForm(type);
+        }
+
+        function closeAuthModal() {
+            modal.classList.remove('active');
+        }
+
+        function toggleAuthForm(type) {
+            if (type === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+        }
+
+        // Close modal when clicking outside the card
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                closeAuthModal();
+            }
+        }
     </script>
 </body>
 </html>
